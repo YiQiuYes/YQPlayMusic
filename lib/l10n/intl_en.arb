@@ -1,0 +1,12 @@
+{
+  "drawer_tile_user" : "Profile",
+  "drawer_tile_setting" : "Settings",
+  "appbar_tab_home" : "Home",
+  "appbar_tab_explore" : "Explore",
+  "appbar_tab_library" : "Library",
+
+  "login_loginText": "Login to Netease",
+  "login_qr_tip" : "Open the Netease APP and scan the code to log in",
+  "loginWithEmail": "Login with Email",
+  "loginWithPhone": "Login with Phone"
+}
