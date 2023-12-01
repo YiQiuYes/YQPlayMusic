@@ -21,9 +21,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    super.initState();
     // 判断是否登录成功
     logic.checkLoginStatus();
+    super.initState();
   }
 
   @override

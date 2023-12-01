@@ -17,10 +17,14 @@ class _ExplorePageState extends State<ExplorePage>
   final logic = Get.put(ExploreLogic());
   final state = Get.find<ExploreLogic>().state;
 
-  Future<void> reflashData() async {}
-
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    state.futurePlayLists = logic.loadPlayList().obs;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,41 +40,44 @@ class _ExplorePageState extends State<ExplorePage>
         // 占满屏幕
         width: ScreenUtil().screenWidth,
         height: ScreenUtil().screenHeight,
-        child: RefreshIndicator(
-          edgeOffset: screenAdaptor.getLengthByOrientation(50.h, 70.h),
-          onRefresh: reflashData,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 占位
-                SizedBox(
-                  height: screenAdaptor.getLengthByOrientation(50.h, 80.h),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 占位
+              SizedBox(
+                height: screenAdaptor.getLengthByOrientation(50.h, 80.h),
+              ),
+              // 发现文本
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(
+                  top: screenAdaptor.getLengthByOrientation(20.h, 30.h),
+                  bottom: screenAdaptor.getLengthByOrientation(20.h, 30.h),
                 ),
-                // 发现文本
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.only(
-                    top: screenAdaptor.getLengthByOrientation(20.h, 30.h),
-                    bottom: screenAdaptor.getLengthByOrientation(20.h, 30.h),
-                  ),
-                  child: Text(
-                    '发现',
-                    style: TextStyle(
-                      fontSize: screenAdaptor.getLengthByOrientation(45.sp, 36.sp),
-                      fontWeight: FontWeight.bold,
-                    ),
+                child: Text(
+                  '发现',
+                  style: TextStyle(
+                    fontSize:
+                        screenAdaptor.getLengthByOrientation(45.sp, 36.sp),
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                // 间距
-                SizedBox(
-                  height: screenAdaptor.getLengthByOrientation(20.h, 30.h),
-                ),
-                // 分类
-                logic.getEnableCategories(),
-              ],
-            ),
+              ),
+              // 间距
+              SizedBox(
+                height: screenAdaptor.getLengthByOrientation(20.h, 30.h),
+              ),
+              // 分类
+              logic.getEnableCategories(),
+              // 间距
+              SizedBox(
+                height: screenAdaptor.getLengthByOrientation(20.h, 30.h),
+              ),
+              // 分类面板
+              logic.getEnableCategoriesPanel(),
+              logic.getPlayListWidget(),
+            ],
           ),
         ),
       ),

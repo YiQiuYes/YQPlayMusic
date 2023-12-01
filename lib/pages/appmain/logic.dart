@@ -26,8 +26,8 @@ class AppMainLogic extends GetxController {
   void tabControllerInit(TickerProvider tickerProvider) {
     state.tabController =
         TabController(length: state.tabs.length, vsync: tickerProvider);
-    // 切换为发现页面 TODO: 记得删除
-    state.tabController.animateTo(1);
+    // 切换为音乐库页面 TODO: 记得删除
+    state.tabController.animateTo(2);
   }
 
   // 路由跳转控制
