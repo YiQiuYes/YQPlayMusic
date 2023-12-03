@@ -23,6 +23,7 @@ class Assets {
   static const String componentsDailyTrackScard = 'lib/components/DailyTrackScard.dart';
   static const String componentsFMCard = 'lib/components/FMCard.dart';
   static const String componentsTrackList = 'lib/components/TrackList.dart';
+  static const String componentsTrackListItem = 'lib/components/TrackListItem.dart';
   static const String exploreLogic = 'lib/pages/explore/logic.dart';
   static const String exploreState = 'lib/pages/explore/state.dart';
   static const String exploreView = 'lib/pages/explore/view.dart';

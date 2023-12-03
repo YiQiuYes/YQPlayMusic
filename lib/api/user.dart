@@ -45,6 +45,51 @@ class UserManager {
       queryParameters: queryParameters,
     );
   }
+
+  // 获取收藏的专辑
+  Future<Response> userLikedAlbums({int? limit, int? offset}) async {
+    MyOptions myOptions = MyOptions(crypto: "weapi");
+    Map<String, dynamic> queryParameters = {
+      "limit": limit ?? 25,
+      "offset": offset ?? 0,
+      "total": true,
+    };
+    return await ssjRequestManager.post(
+      "https://music.163.com/weapi/album/sublist",
+      myOptions: myOptions,
+      queryParameters: queryParameters,
+    );
+  }
+
+  // 获取收藏的歌手
+  Future<Response> userLikedArtists({int? limit, int? offset}) async {
+    MyOptions myOptions = MyOptions(crypto: "weapi");
+    Map<String, dynamic> queryParameters = {
+      "limit": limit ?? 25,
+      "offset": offset ?? 0,
+      "total": true,
+    };
+    return await ssjRequestManager.post(
+      "https://music.163.com/weapi/artist/sublist",
+      myOptions: myOptions,
+      queryParameters: queryParameters,
+    );
+  }
+
+  // 获取收藏的MV
+  Future<Response> userLikedMVs({int? limit, int? offset}) async {
+    MyOptions myOptions = MyOptions(crypto: "weapi");
+    Map<String, dynamic> queryParameters = {
+      "limit": limit ?? 25,
+      "offset": offset ?? 0,
+      "total": true,
+    };
+    return await ssjRequestManager.post(
+      "https://music.163.com/weapi/cloudvideo/allvideo/sublist",
+      myOptions: myOptions,
+      queryParameters: queryParameters,
+    );
+  }
 }
 
 const UserManager userManager = UserManager();

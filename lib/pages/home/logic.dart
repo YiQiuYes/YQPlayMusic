@@ -191,6 +191,7 @@ class HomeLogic extends GetxController {
               child: CoverRow(
                 items: snapshot.data,
                 type: "artist",
+                columnCount: 6,
               ),
             );
           }

@@ -10,7 +10,8 @@ class CoverRow extends StatelessWidget {
       required this.items,
       this.subText,
       this.type,
-      this.showPlayCount = false})
+      this.showPlayCount = false,
+      this.columnCount = 5})
       : super(key: key);
 
   // 专辑数据
@@ -21,6 +22,8 @@ class CoverRow extends StatelessWidget {
   final String? type;
   // 是否显示播放数据
   final bool showPlayCount;
+  // 列数
+  final int columnCount;
 
   // 获取副标题
   String getSubText(item) {
@@ -38,6 +41,8 @@ class CoverRow extends StatelessWidget {
       return item["updateFrequency"];
     } else if (subText == "copywriter") {
       return item["copywriter"];
+    } else if(subText == "creator") {
+      return "by ${item["creator"]["nickname"]}";
     }
     return "";
   }
@@ -172,72 +177,135 @@ class CoverRow extends StatelessWidget {
   }
 
   List<Widget> _buildArtistItems() {
-    List<Widget> widgets = [];
+    if(columnCount == 6) {
+      List<Widget> widgets = [];
 
-    for (var item in items) {
-      widgets.add(
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(
-                screenAdaptor.getLengthByOrientation(85.w, 48.w),
+      for (var item in items) {
+        widgets.add(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipOval(
+                child: Cover(
+                  width: screenAdaptor.getLengthByOrientation(160.w, 92.w),
+                  height: screenAdaptor.getLengthByOrientation(160.w, 92.w),
+                  imageUrl: getImageUrl(item),
+                  id: item["id"],
+                ),
               ),
-              child: Cover(
+              SizedBox(
+                height: screenAdaptor.getLengthByOrientation(10.w, 10.w),
+              ),
+              SizedBox(
                 width: screenAdaptor.getLengthByOrientation(160.w, 92.w),
-                height: screenAdaptor.getLengthByOrientation(160.w, 92.w),
-                imageUrl: getImageUrl(item),
-                id: item["id"],
-              ),
-            ),
-            SizedBox(
-              height: screenAdaptor.getLengthByOrientation(10.w, 10.w),
-            ),
-            SizedBox(
-              width: screenAdaptor.getLengthByOrientation(160.w, 92.w),
-              child: Center(
-                child: Text(
-                  item["name"],
-                  // 最多两行
-                  maxLines: 2,
-                  // 去除溢出
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize:
-                        screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
-                    fontWeight: FontWeight.bold,
+                child: Center(
+                  child: Text(
+                    item["name"],
+                    // 最多两行
+                    maxLines: 2,
+                    // 去除溢出
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize:
+                      screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(
-              width: screenAdaptor.getLengthByOrientation(160.w, 92.w),
-              child: Text(
-                getSubText(item),
-                // 去除溢出
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
-                  color: Colors.black45,
+              SizedBox(
+                width: screenAdaptor.getLengthByOrientation(160.w, 92.w),
+                child: Text(
+                  getSubText(item),
+                  // 去除溢出
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
+                    color: Colors.black45,
+                  ),
                 ),
               ),
-            )
-          ],
-        ),
-      );
+            ],
+          ),
+        );
 
-      // 添加间距
-      widgets.add(
-        SizedBox(
-          width: screenAdaptor.getLengthByOrientation(25.w, 14.5.w),
-        ),
-      );
+        // 添加间距
+        widgets.add(
+          SizedBox(
+            width: screenAdaptor.getLengthByOrientation(25.w, 14.5.w),
+          ),
+        );
+      }
+
+      // 移除最后一个间距
+      widgets.removeLast();
+      return widgets;
+    } else {
+      List<Widget> widgets = [];
+
+      for (var item in items) {
+        widgets.add(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipOval(
+                child: Cover(
+                  width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
+                  height: screenAdaptor.getLengthByOrientation(170.w, 110.w),
+                  imageUrl: getImageUrl(item),
+                  id: item["id"],
+                ),
+              ),
+              SizedBox(
+                height: screenAdaptor.getLengthByOrientation(10.w, 10.w),
+              ),
+              SizedBox(
+                width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
+                child: Center(
+                  child: Text(
+                    item["name"],
+                    // 最多两行
+                    maxLines: 2,
+                    // 去除溢出
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize:
+                      screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
+                child: Text(
+                  getSubText(item),
+                  // 去除溢出
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
+                    color: Colors.black45,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+        // 添加间距
+        widgets.add(
+          SizedBox(
+            width: screenAdaptor.getLengthByOrientation(25.w, 14.5.w),
+          ),
+        );
+      }
+
+      // 移除最后一个间距
+      widgets.removeLast();
+      return widgets;
     }
-
-    // 移除最后一个间距
-    widgets.removeLast();
-    return widgets;
   }
 
   List<Widget> _switchBuildItems() {
