@@ -7,6 +7,8 @@ class Assets {
   static const String apiAuth = 'lib/api/auth.dart';
   static const String apiOthers = 'lib/api/others.dart';
   static const String apiPlaylist = 'lib/api/playlist.dart';
+  static const String apiTrack = 'lib/api/track.dart';
+  static const String apiUser = 'lib/api/user.dart';
   static const String appmainLogic = 'lib/pages/appmain/logic.dart';
   static const String appmainState = 'lib/pages/appmain/state.dart';
   static const String appmainView = 'lib/pages/appmain/view.dart';
@@ -20,6 +22,7 @@ class Assets {
   static const String componentsCoverRow = 'lib/components/CoverRow.dart';
   static const String componentsDailyTrackScard = 'lib/components/DailyTrackScard.dart';
   static const String componentsFMCard = 'lib/components/FMCard.dart';
+  static const String componentsTrackList = 'lib/components/TrackList.dart';
   static const String exploreLogic = 'lib/pages/explore/logic.dart';
   static const String exploreState = 'lib/pages/explore/state.dart';
   static const String exploreView = 'lib/pages/explore/view.dart';

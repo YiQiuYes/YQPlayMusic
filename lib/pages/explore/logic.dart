@@ -351,6 +351,7 @@ class ExploreLogic extends GetxController {
                             : i + 5),
                     subText: getSubText(),
                     type: "playlist",
+                    showPlayCount: true,
                   ),
                 ),
               );

@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:yqplaymusic/common/utils/screenadaptor.dart';
 import 'package:yqplaymusic/components/Cover.dart';
 
 class CoverRow extends StatelessWidget {
-  const CoverRow({Key? key, required this.items, this.subText, this.type})
+  const CoverRow(
+      {Key? key,
+      required this.items,
+      this.subText,
+      this.type,
+      this.showPlayCount = false})
       : super(key: key);
 
   // 专辑数据
@@ -13,6 +19,8 @@ class CoverRow extends StatelessWidget {
   final String? subText;
   // 专辑类型
   final String? type;
+  // 是否显示播放数据
+  final bool showPlayCount;
 
   // 获取副标题
   String getSubText(item) {
@@ -28,7 +36,7 @@ class CoverRow extends StatelessWidget {
       }
     } else if (subText == "updateFrequency") {
       return item["updateFrequency"];
-    } else if(subText == "copywriter") {
+    } else if (subText == "copywriter") {
       return item["copywriter"];
     }
     return "";
@@ -55,6 +63,19 @@ class CoverRow extends StatelessWidget {
     return item["coverImgUrl"] + "?param=512y512";
   }
 
+  // 获取播放数量文本
+  String getPlayCountText(var playCount) {
+    if(playCount == null) return "";
+
+    if(playCount > 100000000) {
+      return " ${(playCount / 100000000).toStringAsFixed(2)}亿";
+    } else if (playCount > 10000) {
+      return " ${(playCount / 10000).toStringAsFixed(1)}万";
+    } else {
+      return playCount.toString();
+    }
+  }
+
   List<Widget> _buildPlayListItems() {
     List<Widget> widgets = [];
 
@@ -72,6 +93,38 @@ class CoverRow extends StatelessWidget {
             ),
             SizedBox(
               height: screenAdaptor.getLengthByOrientation(10.w, 10.w),
+            ),
+            // 播放量
+            Visibility(
+              visible: showPlayCount && getPlayCountText(item["playCount"]) != "",
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        "lib/assets/icons/play.svg",
+                        width: screenAdaptor.getLengthByOrientation(11.w, 7.w),
+                        height: screenAdaptor.getLengthByOrientation(11.w, 7.w),
+                        color: Colors.black26,
+                      ),
+                      // 播放量数量文本
+                      Text(
+                        getPlayCountText(item["playCount"])!,
+                        style: TextStyle(
+                          fontSize:
+                              screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
+                          color: Colors.black26,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: screenAdaptor.getLengthByOrientation(5.w, 5.w),
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
@@ -93,6 +146,8 @@ class CoverRow extends StatelessWidget {
                 getSubText(item),
                 // 去除溢出
                 overflow: TextOverflow.ellipsis,
+                // 最多两行
+                maxLines: 2,
                 style: TextStyle(
                   fontSize: screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
                   color: Colors.black45,
