@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import '../../api/auth.dart';
 import '../../api/playlist.dart';
 import '../../common/utils/screenadaptor.dart';
-import '../../components/CoverRow.dart';
 import 'state.dart';
 import 'dart:developer' as developer;
 
@@ -322,63 +321,5 @@ class ExploreLogic extends GetxController {
     }
 
     return [];
-  }
-
-  // 获取专辑组件
-  Widget getPlayListWidget() {
-    return Obx(
-      () => FutureBuilder(
-        future: state.futurePlayLists.value,
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data.isNotEmpty) {
-            List<Widget> widgets = [];
-            if (state.isLoadNewData) {
-              state.playListsData.addAll(snapshot.data);
-            }
-            state.isLoadNewData = false;
-
-            for (var i = 0; i < state.playListsData.length; i += 5) {
-              widgets.add(
-                SingleChildScrollView(
-                  //physics: const NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  child: CoverRow(
-                    items: state.playListsData.sublist(
-                        i,
-                        i + 5 > state.playListsData.length
-                            ? state.playListsData.length
-                            : i + 5),
-                    subText: getSubText(),
-                    type: "playlist",
-                    showPlayCount: true,
-                  ),
-                ),
-              );
-              widgets.add(
-                SizedBox(
-                  height: screenAdaptor.getLengthByOrientation(30.w, 25.w),
-                ),
-              );
-            }
-            // 移除最后一个多余的SizedBox
-            widgets.removeLast();
-
-            return ListView.builder(
-              itemBuilder: (BuildContext context, int index) {
-                return widgets[index];
-              },
-              itemCount: widgets.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-            );
-          }
-
-          return SizedBox(
-            height: screenAdaptor.getLengthByOrientation(481.h, 25.h),
-          );
-        },
-      ),
-    );
   }
 }

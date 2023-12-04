@@ -73,7 +73,7 @@ class MusicLibraryLogic extends GetxController {
       return Obx(() {
         return InkWell(
           borderRadius: BorderRadius.circular(
-            screenAdaptor.getLengthByOrientation(20.w, 8.w),
+            screenAdaptor.getLengthByOrientation(14.w, 8.w),
           ),
           onTap: () {
             state.currentTabBarIndex.value = index;
@@ -82,7 +82,7 @@ class MusicLibraryLogic extends GetxController {
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
-              screenAdaptor.getLengthByOrientation(20.w, 8.w),
+              screenAdaptor.getLengthByOrientation(14.w, 8.w),
             ),
             child: Container(
               padding: EdgeInsets.fromLTRB(
@@ -111,114 +111,10 @@ class MusicLibraryLogic extends GetxController {
     }).toList();
   }
 
-  // 获取ListView
-  Widget getListViewBuilder(List items,
-      {required String subText, required String type, int? columnCount}) {
-    List<Widget> widgets = [];
-    for (var i = 0; i < items.length; i += 5) {
-      widgets.add(
-        SingleChildScrollView(
-          //physics: const NeverScrollableScrollPhysics(),
-          scrollDirection: Axis.horizontal,
-          child: CoverRow(
-            items:
-                items.sublist(i, i + 5 > items.length ? items.length : i + 5),
-            subText: subText,
-            type: type,
-            columnCount: columnCount ?? 5,
-          ),
-        ),
-      );
-      widgets.add(
-        SizedBox(
-          height: screenAdaptor.getLengthByOrientation(30.w, 25.w),
-        ),
-      );
-    }
-    // 移除最后一个多余的SizedBox
-    if (widgets.isNotEmpty) widgets.removeLast();
-
-    // 获取行数
-    int rowCount = (items.length / 5).ceil();
-    // 如果是竖屏
-    if (screenAdaptor.getOrientation()) {
-      List<Widget> sizeBoxed = [];
-      for (int i = 0; i < 4 - rowCount; i++) {
-        sizeBoxed.add(
-          SizedBox(height: 240.h),
-        );
-        sizeBoxed.add(
-          SizedBox(height: 30.w),
-        );
-      }
-      // 移除最后一个
-      if (sizeBoxed.isNotEmpty) sizeBoxed.removeLast();
-      widgets.addAll(sizeBoxed);
-    } else {
-      // 如果是横屏
-      List<Widget> sizeBoxed = [];
-      for (int i = 0; i < 2 - rowCount; i++) {
-        sizeBoxed.add(
-          SizedBox(height: 500.h),
-        );
-        sizeBoxed.add(
-          SizedBox(height: 25.w),
-        );
-      }
-      // 移除最后一个
-      if (sizeBoxed.isNotEmpty) sizeBoxed.removeLast();
-      widgets.addAll(sizeBoxed);
-    }
-
-    return ListView.builder(
-      itemBuilder: (BuildContext context, int index) {
-        return widgets[index];
-      },
-      itemCount: widgets.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-    );
-  }
-
-  // 获取TabBar页面
-  Widget getTabBarPage() {
-    switch (state.currentTabBarIndex.value) {
-      // 全部歌单页面
-      case 0:
-        return state.userPlayList.isNotEmpty
-            ? getListViewBuilder(state.userPlayList,
-                subText: "creator", type: "playlist")
-            : const SizedBox();
-      // 专辑页面
-      case 1:
-        return state.userLikedAlbums.isNotEmpty
-            ? getListViewBuilder(state.userLikedAlbums,
-                subText: "artist", type: "album")
-            : const SizedBox();
-      // 艺人页面
-      case 2:
-        return state.userLikedArtists.isNotEmpty
-            ? getListViewBuilder(state.userLikedArtists,
-                subText: "", type: "artist", columnCount: 5)
-            : const SizedBox();
-      // MV页面
-      case 3:
-        return const SizedBox();
-      // 云盘页面
-      case 4:
-        return const SizedBox();
-      // 听歌排行页面
-      case 5:
-        return const SizedBox();
-      default:
-        return const SizedBox();
-    }
-  }
-
   // 页面跳转
   void pageScrollTo() {
     state.pageController.animateTo(
-      screenAdaptor.getLengthByOrientation(461.2.w, 285.2.w),
+      screenAdaptor.getLengthByOrientation(461.2.w, 275.2.w),
       duration: const Duration(milliseconds: 500),
       curve: Curves.fastLinearToSlowEaseIn,
     );

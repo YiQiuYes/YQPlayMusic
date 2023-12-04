@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:yqplaymusic/common/utils/screenadaptor.dart';
 import 'package:yqplaymusic/components/Cover.dart';
@@ -41,7 +44,7 @@ class CoverRow extends StatelessWidget {
       return item["updateFrequency"];
     } else if (subText == "copywriter") {
       return item["copywriter"];
-    } else if(subText == "creator") {
+    } else if (subText == "creator") {
       return "by ${item["creator"]["nickname"]}";
     }
     return "";
@@ -70,9 +73,9 @@ class CoverRow extends StatelessWidget {
 
   // 获取播放数量文本
   String getPlayCountText(var playCount) {
-    if(playCount == null) return "";
+    if (playCount == null) return "";
 
-    if(playCount > 100000000) {
+    if (playCount > 100000000) {
       return " ${(playCount / 100000000).toStringAsFixed(2)}亿";
     } else if (playCount > 10000) {
       return " ${(playCount / 10000).toStringAsFixed(1)}万";
@@ -81,243 +84,164 @@ class CoverRow extends StatelessWidget {
     }
   }
 
-  List<Widget> _buildPlayListItems() {
+  List<Widget> _buildArtistItems(List<dynamic> items) {
     List<Widget> widgets = [];
-
     for (var item in items) {
-      widgets.add(
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Cover(
-              width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
-              height: screenAdaptor.getLengthByOrientation(170.w, 110.w),
-              imageUrl: getImageUrl(item),
-              id: item["id"],
-            ),
-            SizedBox(
-              height: screenAdaptor.getLengthByOrientation(10.w, 10.w),
-            ),
-            // 播放量
-            Visibility(
-              visible: showPlayCount && getPlayCountText(item["playCount"]) != "",
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset(
-                        "lib/assets/icons/play.svg",
-                        width: screenAdaptor.getLengthByOrientation(11.w, 7.w),
-                        height: screenAdaptor.getLengthByOrientation(11.w, 7.w),
-                        color: Colors.black26,
-                      ),
-                      // 播放量数量文本
-                      Text(
-                        getPlayCountText(item["playCount"])!,
-                        style: TextStyle(
-                          fontSize:
-                              screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
-                          color: Colors.black26,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: screenAdaptor.getLengthByOrientation(5.w, 5.w),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
-              child: Text(
-                item["name"],
-                // 最多两行
-                maxLines: 2,
-                // 去除溢出
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
-              child: Text(
-                getSubText(item),
-                // 去除溢出
-                overflow: TextOverflow.ellipsis,
-                // 最多两行
-                maxLines: 2,
-                style: TextStyle(
-                  fontSize: screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
-                  color: Colors.black45,
-                ),
-              ),
-            )
-          ],
+      List<Widget> columnWidgets = [
+        ClipOval(
+          child: Cover(
+            imageUrl: getImageUrl(item),
+            id: item["id"],
+          ),
         ),
-      );
-
-      // 添加间距
-      widgets.add(
         SizedBox(
-          width: screenAdaptor.getLengthByOrientation(25.w, 19.5.w),
+          height: screenAdaptor.getLengthByOrientation(10.w, 10.w),
         ),
+        Center(
+          child: Text(
+            item["name"],
+            // 最多两行
+            maxLines: 2,
+            // 去除溢出
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Text(
+          getSubText(item),
+          // 去除溢出
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
+            color: Colors.black45,
+          ),
+        ),
+      ];
+      widgets.add(
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: columnWidgets.length,
+          itemBuilder: (BuildContext context, int index) {
+            return columnWidgets[index];
+          },
+        ),
+        // Column(
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: columnWidgets,
+        // ),
       );
     }
 
-    // 移除最后一个间距
-    widgets.removeLast();
     return widgets;
   }
 
-  List<Widget> _buildArtistItems() {
-    if(columnCount == 6) {
-      List<Widget> widgets = [];
-
-      for (var item in items) {
-        widgets.add(
-          Column(
-            mainAxisSize: MainAxisSize.min,
+  List<Widget> _buildPlayListItems(List<dynamic> items) {
+    List<Widget> widgets = [];
+    for (var item in items) {
+      List<Widget> columnWidgets = [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(
+              screenAdaptor.getLengthByOrientation(14.w, 8.w)),
+          child: Cover(
+            id: item["id"],
+            imageUrl: getImageUrl(item),
+          ),
+        ),
+        SizedBox(
+          height: screenAdaptor.getLengthByOrientation(10.w, 10.w),
+        ),
+        // 播放量
+        Visibility(
+          visible: showPlayCount && getPlayCountText(item["playCount"]) != "",
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              ClipOval(
-                child: Cover(
-                  width: screenAdaptor.getLengthByOrientation(160.w, 92.w),
-                  height: screenAdaptor.getLengthByOrientation(160.w, 92.w),
-                  imageUrl: getImageUrl(item),
-                  id: item["id"],
-                ),
-              ),
-              SizedBox(
-                height: screenAdaptor.getLengthByOrientation(10.w, 10.w),
-              ),
-              SizedBox(
-                width: screenAdaptor.getLengthByOrientation(160.w, 92.w),
-                child: Center(
-                  child: Text(
-                    item["name"],
-                    // 最多两行
-                    maxLines: 2,
-                    // 去除溢出
-                    overflow: TextOverflow.ellipsis,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(
+                    "lib/assets/icons/play.svg",
+                    width: screenAdaptor.getLengthByOrientation(11.w, 7.w),
+                    height: screenAdaptor.getLengthByOrientation(11.w, 7.w),
+                    color: Colors.black26,
+                  ),
+                  // 播放量数量文本
+                  Text(
+                    getPlayCountText(item["playCount"])!,
                     style: TextStyle(
                       fontSize:
-                      screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
-                      fontWeight: FontWeight.bold,
+                          screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
+                      color: Colors.black26,
                     ),
                   ),
-                ),
+                ],
               ),
               SizedBox(
-                width: screenAdaptor.getLengthByOrientation(160.w, 92.w),
-                child: Text(
-                  getSubText(item),
-                  // 去除溢出
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
-                    color: Colors.black45,
-                  ),
-                ),
+                height: screenAdaptor.getLengthByOrientation(5.w, 5.w),
               ),
             ],
           ),
-        );
-
-        // 添加间距
-        widgets.add(
-          SizedBox(
-            width: screenAdaptor.getLengthByOrientation(25.w, 14.5.w),
+        ),
+        // 专辑文本
+        Text(
+          item["name"],
+          // 最多两行
+          maxLines: 2,
+          // 去除溢出
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
+            fontWeight: FontWeight.bold,
           ),
-        );
-      }
-
-      // 移除最后一个间距
-      widgets.removeLast();
-      return widgets;
-    } else {
-      List<Widget> widgets = [];
-
-      for (var item in items) {
-        widgets.add(
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipOval(
-                child: Cover(
-                  width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
-                  height: screenAdaptor.getLengthByOrientation(170.w, 110.w),
-                  imageUrl: getImageUrl(item),
-                  id: item["id"],
-                ),
-              ),
-              SizedBox(
-                height: screenAdaptor.getLengthByOrientation(10.w, 10.w),
-              ),
-              SizedBox(
-                width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
-                child: Center(
-                  child: Text(
-                    item["name"],
-                    // 最多两行
-                    maxLines: 2,
-                    // 去除溢出
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize:
-                      screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: screenAdaptor.getLengthByOrientation(170.w, 110.w),
-                child: Text(
-                  getSubText(item),
-                  // 去除溢出
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
-                    color: Colors.black45,
-                  ),
-                ),
-              ),
-            ],
+        ),
+        // 副标题文本
+        Text(
+          getSubText(item),
+          // 去除溢出
+          overflow: TextOverflow.ellipsis,
+          // 最多两行
+          maxLines: 2,
+          style: TextStyle(
+            fontSize: screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
+            color: Colors.black45,
           ),
-        );
-
-        // 添加间距
-        widgets.add(
-          SizedBox(
-            width: screenAdaptor.getLengthByOrientation(25.w, 14.5.w),
-          ),
-        );
-      }
-
-      // 移除最后一个间距
-      widgets.removeLast();
-      return widgets;
+        ),
+      ];
+      widgets.add(
+        ListView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            return columnWidgets[index];
+          },
+          itemCount: columnWidgets.length,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+        ),
+        // SliverList.builder(
+        //   itemBuilder: (BuildContext context, int index) {
+        //     return columnWidgets[index];
+        //   },
+        //   itemCount: columnWidgets.length,
+        // ),
+      );
     }
+    return widgets;
   }
 
-  List<Widget> _switchBuildItems() {
+  List<Widget> _switchBuildItems(List<dynamic> items) {
     switch (type) {
       case "playlist":
-        return _buildPlayListItems();
+        return _buildPlayListItems(items);
       case "artist":
-        return _buildArtistItems();
+        return _buildArtistItems(items);
       case "album":
-        return _buildPlayListItems();
+        return _buildPlayListItems(items);
       case "updateFrequency":
-        return _buildPlayListItems();
+        return _buildPlayListItems(items);
       default:
         return [];
     }
@@ -325,10 +249,13 @@ class CoverRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: _switchBuildItems(),
+    return SliverAlignedGrid.count(
+      crossAxisCount: columnCount,
+      crossAxisSpacing: screenAdaptor.getLengthByOrientation(25.w, 15.w),
+      itemCount: _switchBuildItems(items).length,
+      itemBuilder: (BuildContext context, int index) {
+        return _switchBuildItems(items)[index];
+      },
     );
   }
 }
