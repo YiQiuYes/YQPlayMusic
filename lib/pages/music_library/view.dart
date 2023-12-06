@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:yqplaymusic/components/MvRow.dart';
 import 'package:yqplaymusic/components/TrackList.dart';
 
 import '../../common/utils/screenadaptor.dart';
@@ -17,10 +18,10 @@ class MusicLibraryPage extends StatefulWidget {
   const MusicLibraryPage({super.key});
 
   @override
-  State<MusicLibraryPage> createState() => _MusicLibraryPageState();
+  State<MusicLibraryPage> createState() => MusicLibraryPageState();
 }
 
-class _MusicLibraryPageState extends State<MusicLibraryPage>
+class MusicLibraryPageState extends State<MusicLibraryPage>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
   final logic = Get.put(MusicLibraryLogic());
   final state = Get.find<MusicLibraryLogic>().state;
@@ -82,8 +83,16 @@ class _MusicLibraryPageState extends State<MusicLibraryPage>
                   height: screenAdaptor.getLengthByOrientation(20.h, 40.h),
                 ),
               ),
+              // 是否显示听歌排行中的子项选择标签
+              _getIsShowHistoryRankTitle(),
               // TabBarView页面
               Obx(() => _getTabBarPage()),
+              // 间距
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: screenAdaptor.getLengthByOrientation(40.h, 70.h),
+                ),
+              ),
             ],
           ),
         ),
@@ -92,7 +101,7 @@ class _MusicLibraryPageState extends State<MusicLibraryPage>
   }
 
   // 获取音乐库标题
-  _getMusicTitleBar() {
+  Widget _getMusicTitleBar() {
     return Obx(() {
       return SliverToBoxAdapter(
         child: Row(
@@ -135,7 +144,7 @@ class _MusicLibraryPageState extends State<MusicLibraryPage>
   }
 
   // 获取音乐库内容
-  _getMusicLibraryContent() {
+  Widget _getMusicLibraryContent() {
     return SliverToBoxAdapter(
       child: SingleChildScrollView(
         // 组件从左开始
@@ -157,13 +166,21 @@ class _MusicLibraryPageState extends State<MusicLibraryPage>
                     Positioned(
                       top: screenAdaptor.getLengthByOrientation(20.h, 35.h),
                       left: screenAdaptor.getLengthByOrientation(20.h, 35.h),
-                      child: Text(
-                        "编曲:周以力\n制作人:周以力/郑伟\n吉他:张淞",
-                        style: TextStyle(
-                          fontSize: screenAdaptor.getLengthByOrientation(
-                              16.sp, 10.sp),
-                          color: const Color.fromRGBO(51, 94, 235, 0.9),
-                        ),
+                      child: SizedBox(
+                        width:
+                            screenAdaptor.getLengthByOrientation(310.h, 480.h),
+                        child: Obx(() {
+                          return Text(
+                            logic.pickedLyric(),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 5,
+                            style: TextStyle(
+                              fontSize: screenAdaptor.getLengthByOrientation(
+                                  16.sp, 10.sp),
+                              color: const Color.fromRGBO(51, 94, 235, 0.9),
+                            ),
+                          );
+                        }),
                       ),
                     ),
                     // 我喜欢的音乐
@@ -184,14 +201,16 @@ class _MusicLibraryPageState extends State<MusicLibraryPage>
                     Positioned(
                       bottom: screenAdaptor.getLengthByOrientation(20.h, 45.h),
                       left: screenAdaptor.getLengthByOrientation(20.h, 35.h),
-                      child: Text(
-                        "35首歌",
-                        style: TextStyle(
-                          fontSize: screenAdaptor.getLengthByOrientation(
-                              16.sp, 10.sp),
-                          color: const Color.fromRGBO(51, 94, 235, 1.0),
-                        ),
-                      ),
+                      child: Obx(() {
+                        return Text(
+                          "${state.likeSongs.length}首歌",
+                          style: TextStyle(
+                            fontSize: screenAdaptor.getLengthByOrientation(
+                                16.sp, 10.sp),
+                            color: const Color.fromRGBO(51, 94, 235, 1.0),
+                          ),
+                        );
+                      }),
                     ),
                     // 播放按钮
                     Positioned(
@@ -251,8 +270,60 @@ class _MusicLibraryPageState extends State<MusicLibraryPage>
     );
   }
 
+  // 获取新建歌单和上传歌曲
+  Widget _getNewPlayListAndUploadSong(
+      {required String svgPath, required String title}) {
+    return Text.rich(
+      TextSpan(
+        style: TextStyle(
+          fontSize: screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
+          color: const Color.fromRGBO(34, 34, 34, 0.56),
+        ),
+        children: [
+          WidgetSpan(
+            child: Container(
+              width: screenAdaptor.getLengthByOrientation(30.w, 20.w),
+              padding: EdgeInsets.only(
+                left: screenAdaptor.getLengthByOrientation(5.w, 5.w),
+                right: screenAdaptor.getLengthByOrientation(5.w, 5.w),
+                top: screenAdaptor.getLengthByOrientation(5.w, 3.w),
+                bottom: screenAdaptor.getLengthByOrientation(5.w, 3.w),
+              ),
+              child: SvgPicture.asset(
+                svgPath,
+                width: screenAdaptor.getLengthByOrientation(13.h, 24.h),
+                height: screenAdaptor.getLengthByOrientation(13.h, 24.h),
+                fit: BoxFit.contain,
+                color: const Color.fromRGBO(34, 34, 34, 0.56),
+              ),
+            ),
+          ),
+          TextSpan(text: title),
+        ],
+      ),
+    );
+  }
+
+  // 根据当前index选择返回新建歌单还是上传歌曲
+  Widget _getNewPlayListOrUploadSong(int index) {
+    switch (index) {
+      case 0:
+        return _getNewPlayListAndUploadSong(
+          svgPath: "lib/assets/icons/plus.svg",
+          title: "新建歌单",
+        );
+      case 4:
+        return _getNewPlayListAndUploadSong(
+          svgPath: "lib/assets/icons/arrow-up-alt.svg",
+          title: "上传歌曲",
+        );
+      default:
+        return const SizedBox();
+    }
+  }
+
   // 获取TabBar导航栏
-  _getTabBar() {
+  Widget _getTabBar() {
     return SliverToBoxAdapter(
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -263,32 +334,10 @@ class _MusicLibraryPageState extends State<MusicLibraryPage>
             spacing: screenAdaptor.getLengthByOrientation(5.h, 30.h),
             children: logic.getTabBarTitleText(),
           ),
-          // +新建歌单
-          Text.rich(
-            TextSpan(
-              style: TextStyle(
-                fontSize: screenAdaptor.getLengthByOrientation(15.sp, 10.sp),
-                color: const Color.fromRGBO(34, 34, 34, 0.56),
-              ),
-              children: [
-                WidgetSpan(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        bottom:
-                            screenAdaptor.getLengthByOrientation(2.1.h, 2.h)),
-                    child: SvgPicture.asset(
-                      "lib/assets/icons/plus.svg",
-                      width: screenAdaptor.getLengthByOrientation(15.h, 28.h),
-                      height: screenAdaptor.getLengthByOrientation(15.h, 28.h),
-                      fit: BoxFit.cover,
-                      color: const Color.fromRGBO(34, 34, 34, 0.56),
-                    ),
-                  ),
-                ),
-                const TextSpan(text: " 新建歌单"),
-              ],
-            ),
-          ),
+          // +新建歌单 和 上传歌曲
+          Obx(() {
+            return _getNewPlayListOrUploadSong(state.currentTabBarIndex.value);
+          }),
         ],
       ),
     );
@@ -303,6 +352,101 @@ class _MusicLibraryPageState extends State<MusicLibraryPage>
       type: type,
       columnCount: screenAdaptor.getOrientation() ? 4 : 5,
     );
+  }
+
+  Widget _getIsShowHistoryRankTitle() {
+    return Obx(() {
+      return Visibility(
+        visible: state.currentTabBarIndex.value == 5,
+        replacement: const SliverToBoxAdapter(child: SizedBox()),
+        child: SliverToBoxAdapter(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      screenAdaptor.getLengthByOrientation(8.w, 5.w),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        state.currentUserHistorySongsRank.value = 0;
+                        state.userHistorySongsRank.clear();
+                        logic.loadUserHistoryRank(type: 1);
+                      },
+                      borderRadius: BorderRadius.circular(
+                        screenAdaptor.getLengthByOrientation(8.w, 5.w),
+                      ),
+                      child: Container(
+                        color: state.currentUserHistorySongsRank.value == 0
+                            ? const Color.fromRGBO(244, 244, 246, 1.0)
+                            : Colors.transparent,
+                        padding: EdgeInsets.fromLTRB(
+                          screenAdaptor.getLengthByOrientation(12.w, 8.w),
+                          screenAdaptor.getLengthByOrientation(5.w, 3.w),
+                          screenAdaptor.getLengthByOrientation(12.w, 8.w),
+                          screenAdaptor.getLengthByOrientation(5.w, 3.w),
+                        ),
+                        child: Text(
+                          "最近一周",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize:
+                                screenAdaptor.getLengthByOrientation(13.sp, 10.sp),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // 间距
+                  SizedBox(
+                    width: screenAdaptor.getLengthByOrientation(5.w, 8.w),
+                  ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      screenAdaptor.getLengthByOrientation(8.w, 5.w),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        state.currentUserHistorySongsRank.value = 1;
+                        state.userHistorySongsRank.clear();
+                        logic.loadUserHistoryRank(type: 0);
+                      },
+                      borderRadius: BorderRadius.circular(
+                        screenAdaptor.getLengthByOrientation(8.w, 5.w),
+                      ),
+                      child: Container(
+                        color: state.currentUserHistorySongsRank.value == 1
+                            ? const Color.fromRGBO(244, 244, 246, 1.0)
+                            : Colors.transparent,
+                        padding: EdgeInsets.fromLTRB(
+                          screenAdaptor.getLengthByOrientation(12.w, 8.w),
+                          screenAdaptor.getLengthByOrientation(5.w, 3.w),
+                          screenAdaptor.getLengthByOrientation(12.w, 8.w),
+                          screenAdaptor.getLengthByOrientation(5.w, 3.w),
+                        ),
+                        child: Text(
+                          "所有时间",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize:
+                                screenAdaptor.getLengthByOrientation(13.sp, 10.sp),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              // 间距
+              SizedBox(
+                height: screenAdaptor.getLengthByOrientation(22.w, 12.w),
+              )
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   // 获取TabBar页面
@@ -334,13 +478,37 @@ class _MusicLibraryPageState extends State<MusicLibraryPage>
         }
       // MV页面
       case 3:
-        return const SliverToBoxAdapter(child: SizedBox());
+        if (state.userLikedMVs.isNotEmpty) {
+          return MvRow(
+            columnCount: 5,
+            items: state.userLikedMVs,
+          );
+        } else {
+          return const SliverToBoxAdapter(child: SizedBox());
+        }
       // 云盘页面
       case 4:
-        return const SliverToBoxAdapter(child: SizedBox());
+        if (state.userCloudDiskSongs.isNotEmpty) {
+          return TrackList(
+            tracks: state.userCloudDiskSongs,
+            type: "sliverCloudDisk",
+            columnCount: 1,
+            isShowSongAlbumNameAndTimes: true,
+          );
+        } else {
+          return const SliverToBoxAdapter(child: SizedBox());
+        }
       // 听歌排行页面
       case 5:
-        return const SliverToBoxAdapter(child: SizedBox());
+        if (state.userHistorySongsRank.isNotEmpty) {
+          return TrackList(
+            tracks: state.userHistorySongsRank,
+            type: "sliverTrackList",
+            columnCount: 1,
+          );
+        } else {
+          return const SliverToBoxAdapter(child: SizedBox());
+        }
       default:
         return const SliverToBoxAdapter(child: SizedBox());
     }

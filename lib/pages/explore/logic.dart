@@ -22,7 +22,7 @@ class ExploreLogic extends GetxController {
   }
 
   // 返回一个导航栏组件
-  Widget buildGuildTile(Map<String, dynamic> e) {
+  Widget _buildGuildTile(Map<String, dynamic> e) {
     Row widget = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -81,7 +81,7 @@ class ExploreLogic extends GetxController {
 
     state.playlistCategoriesWidget = state.playlistCategoriesShowData
         .map((e) {
-          return buildGuildTile(e);
+          return _buildGuildTile(e);
         })
         .toList()
         .obs;
@@ -156,7 +156,7 @@ class ExploreLogic extends GetxController {
               state.playlistCategoriesShowData.add(e);
               // 添加组件到导航栏倒数第二个位置
               state.playlistCategoriesWidget.insert(
-                  state.playlistCategoriesWidget.length - 1, buildGuildTile(e));
+                  state.playlistCategoriesWidget.length - 1, _buildGuildTile(e));
             } else {
               // 删除原始数据
               state.playlistCategoriesShowData.remove(e);

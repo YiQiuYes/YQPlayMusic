@@ -40,6 +40,23 @@ class TrackManager {
       myOptions: myOptions,
     );
   }
+
+  // 获取歌词
+  Future<Response> getLyric({required String id}) async {
+    MyOptions myOptions = MyOptions(crypto: "weapi");
+    Map<String, dynamic> queryParameters = {
+      "id": id,
+      "lv": -1,
+      "kv": -1,
+      "tv": -1,
+      "rv": -1,
+    };
+    return await ssjRequestManager.post(
+      "https://music.163.com/weapi/song/lyric?_nmclfl=1",
+      queryParameters: queryParameters,
+      myOptions: myOptions,
+    );
+  }
 }
 
 const TrackManager trackManager = TrackManager();

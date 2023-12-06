@@ -80,7 +80,7 @@ class CoverRow extends StatelessWidget {
     } else if (playCount > 10000) {
       return " ${(playCount / 10000).toStringAsFixed(1)}万";
     } else {
-      return playCount.toString();
+      return " ${playCount.toString()}";
     }
   }
 
@@ -172,7 +172,7 @@ class CoverRow extends StatelessWidget {
                   ),
                   // 播放量数量文本
                   Text(
-                    getPlayCountText(item["playCount"])!,
+                    getPlayCountText(item["playCount"]),
                     style: TextStyle(
                       fontSize:
                           screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
@@ -221,12 +221,6 @@ class CoverRow extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
         ),
-        // SliverList.builder(
-        //   itemBuilder: (BuildContext context, int index) {
-        //     return columnWidgets[index];
-        //   },
-        //   itemCount: columnWidgets.length,
-        // ),
       );
     }
     return widgets;

@@ -17,6 +17,10 @@ class AppMainState {
   // 渐变颜色列表
   late RxList<Color> gradientColors;
 
+  // 音乐库页面key
+  final GlobalKey<MusicLibraryPageState> musicLibraryPageKey =
+      GlobalKey<MusicLibraryPageState>();
+
   AppMainState() {
     advancedDrawerController = AdvancedDrawerController();
     drawerUserImgUrl =
@@ -32,7 +36,7 @@ class AppMainState {
     tabViews = [
       const HomePage(),
       const ExplorePage(),
-      const MusicLibraryPage(),
+      MusicLibraryPage(key: musicLibraryPageKey),
     ];
 
     // 渐变颜色列表

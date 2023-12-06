@@ -1,3 +1,4 @@
+import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:palette_generator/palette_generator.dart';
@@ -26,12 +27,21 @@ class AppMainLogic extends GetxController {
   void tabControllerInit(TickerProvider tickerProvider) {
     state.tabController =
         TabController(length: state.tabs.length, vsync: tickerProvider);
+    state.tabController.addListener(() {
+      switch(state.tabController.index) {
+        case 2:
+          // 音乐库页面
+          state.musicLibraryPageKey.currentState?.logic.getRandomLyric();
+          break;
+      }
+    });
+
     // 切换为音乐库页面 TODO: 记得删除
-    state.tabController.animateTo(2);
+    state.tabController.animateTo(0);
   }
 
   // 路由跳转控制
-  void brnTabBarOnTap(brnState, index) {
+  void brnTabBarOnTap(BrnTabBarState brnState, int index) {
     brnState.refreshBadgeState(index);
   }
 

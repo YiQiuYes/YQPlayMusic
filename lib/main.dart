@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,6 +12,10 @@ import 'common/utils/platformutils.dart';
 
 void main() {
   runApp(const MyApp());
+
+  // 将http请求的userAgent设置为空，防止网易云音乐返回403
+  HttpClient httpClient = HttpClient();
+  httpClient.userAgent = "";
 
   if (PlatformUtils.isAndroid) {
     SystemUiOverlayStyle systemUiOverlayStyle = const SystemUiOverlayStyle(

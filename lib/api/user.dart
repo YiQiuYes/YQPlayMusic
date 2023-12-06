@@ -90,6 +90,49 @@ class UserManager {
       queryParameters: queryParameters,
     );
   }
+
+  // 获取云盘歌曲
+  Future<Response> userCloudDisk({int? limit, int? offset}) async {
+    MyOptions myOptions = MyOptions(crypto: "weapi");
+    Map<String, dynamic> queryParameters = {
+      "limit": limit ?? 30,
+      "offset": offset ?? 0,
+    };
+    return await ssjRequestManager.post(
+      "https://music.163.com/weapi/v1/cloud/get",
+      myOptions: myOptions,
+      queryParameters: queryParameters,
+    );
+  }
+
+  // 获取云盘歌曲详细
+  Future<Response> userCloudDiskTrackDetail({required List ids}) async {
+    MyOptions myOptions = MyOptions(crypto: "weapi");
+    Map<String, dynamic> queryParameters = {
+      "songIds": ids.join(","),
+    };
+    return await ssjRequestManager.post(
+      "https://music.163.com/weapi/v1/cloud/get/byids",
+      myOptions: myOptions,
+      queryParameters: queryParameters,
+    );
+  }
+
+  /// 获取听歌排行
+  /// - [uid] 用户id
+  /// - [type] 0 为所有时间， 1 为最近一周
+  Future<Response> userPlayHistory({required String uid, int? type}) async {
+    MyOptions myOptions = MyOptions(crypto: "weapi");
+    Map<String, dynamic> queryParameters = {
+      "uid" : uid,
+      "type" : type ?? 0,
+    };
+    return await ssjRequestManager.post(
+      "https://music.163.com/weapi/v1/play/record",
+      myOptions: myOptions,
+      queryParameters: queryParameters,
+    );
+  }
 }
 
 const UserManager userManager = UserManager();

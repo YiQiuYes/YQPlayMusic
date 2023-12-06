@@ -18,6 +18,13 @@ class MusicLibraryState {
   late RxList userLikedArtists;
   // 用户收藏的MV
   late RxList userLikedMVs;
+  // 用户云盘歌曲信息
+  late RxList userCloudDiskSongs;
+  // 用户听歌排行信息
+  late RxList userHistorySongsRank;
+
+  // 随机歌词
+  late RxList randomLyric;
 
   // 滑动页面控制器
   late ScrollController pageController;
@@ -25,6 +32,9 @@ class MusicLibraryState {
   late RxList<String> tabBarTitles;
   // 当前选择的标签
   late RxInt currentTabBarIndex;
+  // 当前用户排行信息选择的标签
+  late RxInt currentUserHistorySongsRank;
+
 
   MusicLibraryState() {
     loginStatus = false.obs;
@@ -38,5 +48,9 @@ class MusicLibraryState {
     userLikedAlbums = [].obs;
     userLikedArtists = [].obs;
     userLikedMVs = [].obs;
+    randomLyric = [].obs;
+    userCloudDiskSongs = [].obs;
+    userHistorySongsRank = [].obs;
+    currentUserHistorySongsRank = 0.obs;
   }
 }
