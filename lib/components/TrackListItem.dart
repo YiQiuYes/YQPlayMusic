@@ -223,11 +223,15 @@ class TrackListItem extends StatelessWidget {
   String getArtists(Map item) {
     if (item["ar"] != null) {
       if (item["ar"].isNotEmpty) {
-        return item["ar"].map((e) => e["name"]).join(", ");
+        String name = item["ar"].map((e) => e["name"]).join(", ");
+        if(name == "null") return "";
+        return name;
       }
     } else if (item["artists"] != null) {
       if (item["artists"].isNotEmpty) {
-        return item["artists"].map((e) => e["name"]).join(", ");
+        String name = item["artists"].map((e) => e["name"]).join(", ");
+        if(name == "null") return "";
+        return name;
       }
     }
     return "";
@@ -236,9 +240,9 @@ class TrackListItem extends StatelessWidget {
   // 获取专辑名字
   String getAlbumName(Map item) {
     if (item["album"] != null) {
-      return item["album"]["name"];
+      return item["album"]["name"] ?? "";
     } else if (item["al"] != null) {
-      return item["al"]["name"];
+      return item["al"]["name"] ?? "";
     }
     return "";
   }
@@ -247,6 +251,7 @@ class TrackListItem extends StatelessWidget {
   String getSongTime(Map item) {
     // 歌曲时间
     double dt = item["dt"] / 1000;
+    if(dt == 0) return "";
     return "${dt ~/ 60}:${(dt % 60).truncate()}";
   }
 }

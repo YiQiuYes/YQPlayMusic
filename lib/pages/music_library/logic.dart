@@ -79,7 +79,7 @@ class MusicLibraryLogic extends GetxController {
         });
 
         // 获取听歌排行
-        if(state.userHistorySongsRank.isEmpty) {
+        if (state.userHistorySongsRank.isEmpty) {
           loadUserHistoryRank(type: 1);
         }
       } else {
@@ -209,7 +209,9 @@ class MusicLibraryLogic extends GetxController {
     int id = likeSongs[Random().nextInt(likeSongs.length)]["id"];
     trackManager.getLyric(id: id.toString()).then((value) {
       String lyric = value.data is String
-          ? jsonDecode(value.data)["lrc"]["lyric"]
+          ? (jsonDecode(value.data)["lrc"] != null
+              ? jsonDecode(value.data)["lrc"]["lyric"]
+              : "")
           : value.data["lrc"]["lyric"];
       // developer.log(lyric.runtimeType.toString());
       List isInstrumental = lyric
@@ -217,19 +219,16 @@ class MusicLibraryLogic extends GetxController {
           .where((element) => !element.contains("纯音乐，请欣赏"))
           .toList();
       if (isInstrumental.isNotEmpty) {
-        state.randomLyric.value = lyric.split("\n");
+        List<String> lyrics = lyric.split("\n");
+        state.randomLyric.value = pickedLyric(lyrics);
       }
     });
   }
 
   // 摘取三行歌词
-  String pickedLyric() {
-    // 如果为空则返回空字符串
-    if (state.randomLyric.isEmpty) {
-      return "";
-    }
+  String pickedLyric(List<String> lyrics) {
     // developer.log(state.randomLyric.toString());
-    List lyricLines = state.randomLyric
+    List lyricLines = lyrics
         .where((line) =>
             !line.contains("作词") &&
             !line.contains("作曲") &&
@@ -238,8 +237,15 @@ class MusicLibraryLogic extends GetxController {
     // 获取随机三行歌词
     int lyricsToPick = min(lyricLines.length, 3);
     int randomUpperBound = lyricLines.length - lyricsToPick;
-    int startLyricLineIndex = Random().nextInt(randomUpperBound - 1);
 
+    // 防止为0的时候报错
+    if(randomUpperBound == 0) {
+      return lyricLines.map((e) {
+        return e.split("]").last;
+      }).join("\n");
+    }
+
+    int startLyricLineIndex = Random().nextInt(randomUpperBound - 1);
     return lyricLines
         .sublist(startLyricLineIndex, startLyricLineIndex + lyricsToPick)
         .map((e) {
@@ -255,12 +261,11 @@ class MusicLibraryLogic extends GetxController {
       userManager
           .userPlayHistory(uid: state.userInfo["userId"].toString(), type: type)
           .then((value) {
-        Map res = value.data is String
-            ? jsonDecode(value.data)
-            : value.data;
+        Map res = value.data is String ? jsonDecode(value.data) : value.data;
 
         // 获取数据
-        state.userHistorySongsRank.value = res[type == 0 ? "allData" : "weekData"];
+        state.userHistorySongsRank.value =
+            res[type == 0 ? "allData" : "weekData"];
         // developer.log(res.toString());
       });
     }
@@ -269,6 +274,7 @@ class MusicLibraryLogic extends GetxController {
   Future<void> refreshData() async {
     pageInit();
     getRandomLyric();
-    loadUserHistoryRank(type: state.currentUserHistorySongsRank.value == 0 ? 1 : 0);
+    loadUserHistoryRank(
+        type: state.currentUserHistorySongsRank.value == 0 ? 1 : 0);
   }
 }

@@ -27,12 +27,12 @@ class _AppMainPageState extends State<AppMainPage>
 
   @override
   void initState() {
+    super.initState();
     logic.tabControllerInit(this);
     // 检查用户登录状态
     logic.checkLoginStatus();
     // 获取渐变颜色
     logic.getGradientColor();
-    super.initState();
   }
 
   @override

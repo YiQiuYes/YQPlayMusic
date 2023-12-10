@@ -1,9 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:css_filter/css_filter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../common/utils/screenadaptor.dart';
 
 class Cover extends StatelessWidget {
   const Cover(

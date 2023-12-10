@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:yqplaymusic/api/track.dart';
 import 'package:yqplaymusic/common/utils/screenadaptor.dart';
 import 'package:yqplaymusic/components/DailyTrackScard.dart';
 import 'package:yqplaymusic/components/FMCard.dart';

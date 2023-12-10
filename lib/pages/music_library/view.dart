@@ -55,45 +55,48 @@ class MusicLibraryPageState extends State<MusicLibraryPage>
         child: RefreshIndicator(
           edgeOffset: screenAdaptor.getLengthByOrientation(50.h, 70.h),
           onRefresh: logic.refreshData,
-          child: CustomScrollView(
-            anchor: 0.06,
-            controller: state.pageController,
-            slivers: [
-              // 音乐库标题
-              _getMusicTitleBar(),
-              // 间距
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: screenAdaptor.getLengthByOrientation(50.h, 30.h),
+          child: Listener(
+
+            child: CustomScrollView(
+              anchor: 0.06,
+              controller: state.pageController,
+              slivers: [
+                // 音乐库标题
+                _getMusicTitleBar(),
+                // 间距
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: screenAdaptor.getLengthByOrientation(50.h, 30.h),
+                  ),
                 ),
-              ),
-              // 音乐库内容
-              _getMusicLibraryContent(),
-              // 间距
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: screenAdaptor.getLengthByOrientation(70.w, 50.w),
+                // 音乐库内容
+                _getMusicLibraryContent(),
+                // 间距
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: screenAdaptor.getLengthByOrientation(70.w, 50.w),
+                  ),
                 ),
-              ),
-              // TabBar导航栏
-              _getTabBar(),
-              // 间距
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: screenAdaptor.getLengthByOrientation(20.h, 40.h),
+                // TabBar导航栏
+                _getTabBar(),
+                // 间距
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: screenAdaptor.getLengthByOrientation(20.h, 40.h),
+                  ),
                 ),
-              ),
-              // 是否显示听歌排行中的子项选择标签
-              _getIsShowHistoryRankTitle(),
-              // TabBarView页面
-              Obx(() => _getTabBarPage()),
-              // 间距
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: screenAdaptor.getLengthByOrientation(40.h, 70.h),
+                // 是否显示听歌排行中的子项选择标签
+                _getIsShowHistoryRankTitle(),
+                // TabBarView页面
+                Obx(() => _getTabBarPage()),
+                // 间距
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: screenAdaptor.getLengthByOrientation(40.h, 70.h),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -171,7 +174,7 @@ class MusicLibraryPageState extends State<MusicLibraryPage>
                             screenAdaptor.getLengthByOrientation(310.h, 480.h),
                         child: Obx(() {
                           return Text(
-                            logic.pickedLyric(),
+                            state.randomLyric.value,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 5,
                             style: TextStyle(
@@ -480,7 +483,7 @@ class MusicLibraryPageState extends State<MusicLibraryPage>
       case 3:
         if (state.userLikedMVs.isNotEmpty) {
           return MvRow(
-            columnCount: 5,
+            columnCount: screenAdaptor.getOrientation() ? 4 : 5,
             items: state.userLikedMVs,
           );
         } else {

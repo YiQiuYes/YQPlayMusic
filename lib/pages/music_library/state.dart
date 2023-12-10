@@ -24,7 +24,7 @@ class MusicLibraryState {
   late RxList userHistorySongsRank;
 
   // 随机歌词
-  late RxList randomLyric;
+  late RxString randomLyric;
 
   // 滑动页面控制器
   late ScrollController pageController;
@@ -48,7 +48,7 @@ class MusicLibraryState {
     userLikedAlbums = [].obs;
     userLikedArtists = [].obs;
     userLikedMVs = [].obs;
-    randomLyric = [].obs;
+    randomLyric = "".obs;
     userCloudDiskSongs = [].obs;
     userHistorySongsRank = [].obs;
     currentUserHistorySongsRank = 0.obs;

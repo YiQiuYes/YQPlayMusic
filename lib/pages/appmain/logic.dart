@@ -30,14 +30,17 @@ class AppMainLogic extends GetxController {
     state.tabController.addListener(() {
       switch(state.tabController.index) {
         case 2:
-          // 音乐库页面
-          state.musicLibraryPageKey.currentState?.logic.getRandomLyric();
+          {
+            if(state.tabController.indexIsChanging) return;
+            // 音乐库页面
+            state.musicLibraryPageKey.currentState?.logic.getRandomLyric();
+          }
           break;
       }
     });
 
     // 切换为音乐库页面 TODO: 记得删除
-    state.tabController.animateTo(0);
+    state.tabController.animateTo(2);
   }
 
   // 路由跳转控制
