@@ -40,7 +40,7 @@ class AppMainLogic extends GetxController {
     });
 
     // 切换为音乐库页面 TODO: 记得删除
-    state.tabController.animateTo(2);
+    state.tabController.animateTo(0);
   }
 
   // 路由跳转控制

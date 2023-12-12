@@ -2,6 +2,7 @@
 class Assets {
   Assets._();
 
+  static const String alterwidgetsWDCustomTrackShape = 'lib/common/alterwidgets/WDCustomTrackShape.dart';
   static const String apiAlbum = 'lib/api/album.dart';
   static const String apiArtist = 'lib/api/artist.dart';
   static const String apiAuth = 'lib/api/auth.dart';
@@ -85,6 +86,9 @@ class Assets {
   static const String logosNyancatStop = 'lib/assets/logos/nyancat-stop.png';
   static const String logosYesplaymusic = 'lib/assets/logos/yesplaymusic.png';
   static const String logosYesplaymusicWhite24x24 = 'lib/assets/logos/yesplaymusic-white24x24.png';
+  static const String lyricsLogic = 'lib/pages/lyrics/logic.dart';
+  static const String lyricsState = 'lib/pages/lyrics/state.dart';
+  static const String lyricsView = 'lib/pages/lyrics/view.dart';
   static const String musicLibraryLogic = 'lib/pages/music_library/logic.dart';
   static const String musicLibraryState = 'lib/pages/music_library/state.dart';
   static const String musicLibraryView = 'lib/pages/music_library/view.dart';
@@ -94,6 +98,7 @@ class Assets {
   static const String utilsCrypto = 'lib/common/utils/crypto.dart';
   static const String utilsImageutils = 'lib/common/utils/imageutils.dart';
   static const String utilsPlatformutils = 'lib/common/utils/platformutils.dart';
+  static const String utilsPlayer = 'lib/common/utils/Player.dart';
   static const String utilsScreenadaptor = 'lib/common/utils/screenadaptor.dart';
   static const String utilsStaticdata = 'lib/common/utils/staticdata.dart';
 

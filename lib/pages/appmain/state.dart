@@ -16,6 +16,8 @@ class AppMainState {
   late List<Widget> tabViews; // Tab页面列表
   // 渐变颜色列表
   late RxList<Color> gradientColors;
+  // 音乐播放进度条
+  late RxDouble musicProgress;
 
   // 音乐库页面key
   final GlobalKey<MusicLibraryPageState> musicLibraryPageKey =
@@ -44,5 +46,8 @@ class AppMainState {
       Colors.blueGrey,
       Colors.blueGrey.withOpacity(0.2),
     ].obs;
+
+    // 音乐播放进度条
+    musicProgress = 0.0.obs;
   }
 }

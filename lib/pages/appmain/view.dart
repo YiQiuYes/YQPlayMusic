@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import 'package:yqplaymusic/common/utils/backdropcssfilter/css_filter.dart';
 import 'package:yqplaymusic/common/utils/screenadaptor.dart';
 
+import '../../common/alterwidgets/WDCustomTrackShape.dart';
 import '../../common/utils/backdropcssfilter/filter.dart';
 import '../../generated/l10n.dart';
+import '../../router/routeconfig.dart';
 import 'logic.dart';
 
 class AppMainPage extends StatefulWidget {
@@ -178,6 +181,7 @@ class _AppMainPageState extends State<AppMainPage>
                     children: state.tabViews,
                   ),
                 ),
+                // 顶部导航栏
                 Positioned(
                   top: screenAdaptor.getLengthByOrientation(0.h, 0.h),
                   child: BackdropCSSFilter.blur(
@@ -244,11 +248,231 @@ class _AppMainPageState extends State<AppMainPage>
                     ),
                   ),
                 ),
+                // 底部播放栏
+                Positioned(
+                  bottom: screenAdaptor.getLengthByOrientation(0.h, 0.h),
+                  child: _getMusicPlayBar(),
+                ),
+                // 获取进度条
+                Positioned(
+                  bottom: screenAdaptor.getLengthByOrientation(72.h, 118.h),
+                  left: 0,
+                  right: 0,
+                  child: _getMusicPlayIndicator(),
+                )
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  // 获取音乐播放条
+  Widget _getMusicPlayBar() {
+    return BackdropCSSFilter.blur(
+      value: 8,
+      child: Container(
+        height: screenAdaptor.getLengthByOrientation(80.h, 130.h),
+        width: ScreenUtil().screenWidth,
+        color: Colors.white.withOpacity(0.9),
+        padding: EdgeInsets.fromLTRB(
+          screenAdaptor.getLengthByOrientation(24.h, 105.h),
+          screenAdaptor.getLengthByOrientation(12.h, 15.h),
+          screenAdaptor.getLengthByOrientation(24.h, 115.h),
+          screenAdaptor.getLengthByOrientation(25.h, 40.h),
+        ),
+        child: Stack(
+          children: [
+            // 歌曲图片
+            Obx(() {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(
+                    screenAdaptor.getLengthByOrientation(5.w, 4.w)),
+                child: Image.network(
+                  "${state.drawerUserImgUrl.value}?param=212y212",
+                  fit: BoxFit.contain,
+                ),
+              );
+            }),
+            // 歌曲信息
+            Positioned(
+              left: screenAdaptor.getLengthByOrientation(58.h, 95.h),
+              top: screenAdaptor.getLengthByOrientation(1.h, 5.h),
+              right: 0,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 歌词信息
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "歌曲名",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: screenAdaptor.getLengthByOrientation(
+                              16.sp, 11.sp),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "歌手名",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize:
+                              screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
+                          color: Colors.black38,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // 间距
+                  SizedBox(
+                    width: screenAdaptor.getLengthByOrientation(18.w, 15.w),
+                  ),
+                  // 喜欢按钮
+                  IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset(
+                      "lib/assets/icons/heart.svg",
+                      width: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                      height: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // 中间播放控件
+            Align(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset(
+                      "lib/assets/icons/previous.svg",
+                      width: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                      height: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                    ),
+                  ),
+                  // 间距
+                  SizedBox(
+                    width: screenAdaptor.getLengthByOrientation(20.w, 15.w),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset(
+                      "lib/assets/icons/play.svg",
+                      width: screenAdaptor.getLengthByOrientation(30.w, 20.w),
+                      height: screenAdaptor.getLengthByOrientation(30.w, 20.w),
+                    ),
+                  ),
+                  // 间距
+                  SizedBox(
+                    width: screenAdaptor.getLengthByOrientation(20.w, 15.w),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset(
+                      "lib/assets/icons/next.svg",
+                      width: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                      height: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // 右侧播放列表组
+            Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 播放列表
+                  IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset(
+                      "lib/assets/icons/list.svg",
+                      width: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                      height: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                    ),
+                  ),
+                  // 间距
+                  SizedBox(
+                    width: screenAdaptor.getLengthByOrientation(8.w, 5.w),
+                  ),
+                  // 循环播放
+                  IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset(
+                      "lib/assets/icons/repeat.svg",
+                      width: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                      height: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                    ),
+                  ),
+                  // 间距
+                  SizedBox(
+                    width: screenAdaptor.getLengthByOrientation(8.w, 5.w),
+                  ),
+                  // 随机播放
+                  IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset(
+                      "lib/assets/icons/shuffle.svg",
+                      width: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                      height: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                    ),
+                  ),
+                  // 间距
+                  SizedBox(
+                    width: screenAdaptor.getLengthByOrientation(8.w, 5.w),
+                  ),
+                  // 呼出歌词界面
+                  IconButton(
+                    onPressed: () {
+                      Get.toNamed(RouteConfig.lyrics);
+                    },
+                    icon: SvgPicture.asset(
+                      "lib/assets/icons/arrow-up.svg",
+                      width: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                      height: screenAdaptor.getLengthByOrientation(20.w, 13.w),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 获取音乐播放进度条指示器
+  Widget _getMusicPlayIndicator() {
+    return SliderTheme(
+      data: SliderThemeData(
+        trackHeight: 3,
+        inactiveTrackColor: Colors.grey[300],
+        activeTrackColor: Colors.blue,
+        disabledActiveTrackColor: Colors.blue,
+        disabledInactiveTrackColor: Colors.blue,
+        thumbColor: Colors.white,
+        trackShape: WDCustomTrackShape(addHeight: 0),
+        overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
+      ),
+      child: Obx(() {
+        return Slider(
+          value: state.musicProgress.value,
+          onChanged: (value) {
+            state.musicProgress.value = value;
+          },
+        );
+      }),
     );
   }
 }
