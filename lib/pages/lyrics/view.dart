@@ -19,12 +19,16 @@ class LyricsPage extends StatefulWidget {
 
 class _LyricsPageState extends State<LyricsPage> {
   final logic = Get.put(LyricsLogic());
-  final state = Get.find<LyricsLogic>().state;
+  final state = Get
+      .find<LyricsLogic>()
+      .state;
 
   @override
   void initState() {
     logic.getSongInfo();
     logic.startTimerMusicPrecess();
+    // 设置当前播放位置回调
+    player.setCurrentPositionCb(logic.handleLyricsScroll);
     super.initState();
   }
 
@@ -44,13 +48,14 @@ class _LyricsPageState extends State<LyricsPage> {
             child: CSSFilter.apply(
               value: CSSFilterMatrix().contrast(0.3).brightness(2.5).blur(50),
               child: Obx(
-                () => Image.network(
-                  logic.getSongImageUrl(type: "background"),
-                  alignment: Alignment.topRight,
-                  fit: BoxFit.cover,
-                  colorBlendMode: BlendMode.color,
-                  color: Colors.white,
-                ),
+                    () =>
+                    Image.network(
+                      logic.getSongImageUrl(type: "background"),
+                      alignment: Alignment.topRight,
+                      fit: BoxFit.cover,
+                      colorBlendMode: BlendMode.color,
+                      color: Colors.white,
+                    ),
               ),
             ),
           ),
@@ -60,138 +65,126 @@ class _LyricsPageState extends State<LyricsPage> {
           child: CSSFilter.apply(
             value: CSSFilterMatrix().contrast(0.3).brightness(2.5).blur(50),
             child: Obx(
-              () => Image.network(
-                logic.getSongImageUrl(type: "background"),
-                fit: BoxFit.cover,
-                alignment: Alignment.bottomLeft,
-              ),
+                  () =>
+                  Image.network(
+                    logic.getSongImageUrl(type: "background"),
+                    fit: BoxFit.cover,
+                    alignment: Alignment.bottomLeft,
+                  ),
             ),
           ),
         ),
         // 播放空间和歌词滚动模块
         Center(
-          child: ListView(
-            physics: const NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            children: [
-              // 歌词信息及播放控件
-              Visibility(
-                visible: false || !screenAdaptor.getOrientation(),
-                child: Container(
-                  color: Colors.transparent,
-                  padding: EdgeInsets.only(
-                    top: screenAdaptor.getLengthByOrientation(200.w, 60.w),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          child: NotificationListener(
+            onNotification: logic.handleLyricsIsScroll,
+            child: _getPlayControlAndLyricsScrollWidget(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 获取播放控件和歌词滚动模块
+  Widget _getPlayControlAndLyricsScrollWidget() {
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      scrollDirection: Axis.horizontal,
+      shrinkWrap: true,
+      children: [
+        // 歌词信息及播放控件
+        Visibility(
+          visible: false || !screenAdaptor.getOrientation(),
+          child: Container(
+            color: Colors.transparent,
+            padding: EdgeInsets.only(
+              top: screenAdaptor.getLengthByOrientation(200.w, 60.w),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 歌词图片
+                _getSongImage(),
+                // 间距
+                SizedBox(
+                  height: screenAdaptor.getLengthByOrientation(30.w, 15.w),
+                ),
+                // 歌曲信息及我喜欢等控件
+                SizedBox(
+                  width: screenAdaptor.getLengthByOrientation(400.w, 200.w),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // 歌词图片
-                      _getSongImage(),
-                      // 间距
-                      SizedBox(
-                        height:
-                            screenAdaptor.getLengthByOrientation(30.w, 15.w),
+                      // 歌曲信息
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 歌曲名称
+                          _getSongNameText(),
+                          // 间距
+                          SizedBox(
+                            height:
+                            screenAdaptor.getLengthByOrientation(5.w, 5.w),
+                          ),
+                          // 歌曲副标题
+                          _getSongNameSubText(),
+                        ],
                       ),
-                      // 歌曲信息及我喜欢等控件
-                      SizedBox(
-                        width:
-                            screenAdaptor.getLengthByOrientation(400.w, 200.w),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // 歌曲信息
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // 歌曲名称
-                                _getSongNameText(),
-                                // 间距
-                                SizedBox(
-                                  height: screenAdaptor.getLengthByOrientation(
-                                      5.w, 5.w),
-                                ),
-                                // 歌曲副标题
-                                _getSongNameSubText(),
-                              ],
+                      // 我喜欢等控件
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: SvgPicture.asset(
+                              "lib/assets/icons/heart.svg",
+                              fit: BoxFit.contain,
+                              width: screenAdaptor.getLengthByOrientation(
+                                  30.w, 15.w),
                             ),
-                            // 我喜欢等控件
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: SvgPicture.asset(
-                                    "lib/assets/icons/heart.svg",
-                                    fit: BoxFit.contain,
-                                    width: screenAdaptor.getLengthByOrientation(
-                                        30.w, 15.w),
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: SvgPicture.asset(
-                                    "lib/assets/icons/plus.svg",
-                                    fit: BoxFit.contain,
-                                    width: screenAdaptor.getLengthByOrientation(
-                                        30.w, 15.w),
-                                  ),
-                                ),
-                              ],
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: SvgPicture.asset(
+                              "lib/assets/icons/plus.svg",
+                              fit: BoxFit.contain,
+                              width: screenAdaptor.getLengthByOrientation(
+                                  30.w, 15.w),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      // 间距
-                      SizedBox(
-                        height: screenAdaptor.getLengthByOrientation(30.w, 8.w),
-                      ),
-                      // 播放进度条
-                      _getPlayPrecessBar(),
-                      // 间距
-                      SizedBox(
-                        height: screenAdaptor.getLengthByOrientation(30.w, 8.w),
-                      ),
-                      // 播放控件
-                      _getPlayControlBar(),
                     ],
                   ),
                 ),
-              ),
-              // 间距
-              Visibility(
-                visible: !screenAdaptor.getOrientation(),
-                child: SizedBox(
-                  width: screenAdaptor.getLengthByOrientation(50.w, 50.w),
+                // 间距
+                SizedBox(
+                  height: screenAdaptor.getLengthByOrientation(30.w, 8.w),
                 ),
-              ),
-              // 歌词
-              Visibility(
-                visible: !screenAdaptor.getOrientation() || true,
-                child: _getLyricWidget(),
-              ),
-              // 跳转按钮
-              IconButton(
-                onPressed: () {
-                  // state.itemScrollController.scrollTo(
-                  //   index: 0,
-                  //   duration: const Duration(milliseconds: 200),
-                  //   alignment: screenAdaptor.getLengthByOrientation(0.47, 0.35),
-                  // );
-                  logic.getMusicUrl();
-                },
-                icon: const Icon(Icons.play_arrow),
-              ),
-              // 跳转按钮
-              IconButton(
-                onPressed: () {
-                  player.audioPlayer.stop();
-                },
-                icon: const Icon(Icons.stop),
-              ),
-            ],
+                // 播放进度条
+                _getPlayPrecessBar(),
+                // 间距
+                SizedBox(
+                  height: screenAdaptor.getLengthByOrientation(30.w, 8.w),
+                ),
+                // 播放控件
+                _getPlayControlBar(),
+              ],
+            ),
           ),
+        ),
+        // 间距
+        Visibility(
+          visible: !screenAdaptor.getOrientation(),
+          child: SizedBox(
+            width: screenAdaptor.getLengthByOrientation(50.w, 70.w),
+          ),
+        ),
+        // 歌词
+        Visibility(
+          visible: !screenAdaptor.getOrientation() || true,
+          child: _getLyricWidget(),
         ),
       ],
     );
@@ -200,7 +193,7 @@ class _LyricsPageState extends State<LyricsPage> {
   // 获取歌词组件
   Widget _getLyricWidget() {
     return SizedBox(
-      width: screenAdaptor.getLengthByOrientation(480.w, 330.w),
+      width: screenAdaptor.getLengthByOrientation(480.w, 270.w),
       child: Obx(() {
         return ScrollablePositionedList.builder(
           shrinkWrap: true,
@@ -214,15 +207,19 @@ class _LyricsPageState extends State<LyricsPage> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "${state.lyrics[index]}",
-                  style: TextStyle(
-                    decoration: TextDecoration.none,
-                    color: Colors.black,
-                    fontSize:
-                        screenAdaptor.getLengthByOrientation(40.sp, 22.sp),
-                  ),
-                ),
+                Obx(() {
+                  return Text(
+                    "${state.lyrics[index]}",
+                    style: TextStyle(
+                      decoration: TextDecoration.none,
+                      color: state.lyricsScrollPosition.value == index + 1
+                          ? Colors.black
+                          : Colors.black26,
+                      fontSize:
+                      screenAdaptor.getLengthByOrientation(40.sp, 22.sp),
+                    ),
+                  );
+                }),
                 // 间距
                 SizedBox(
                   height: screenAdaptor.getLengthByOrientation(20.w, 20.w),
@@ -259,7 +256,7 @@ class _LyricsPageState extends State<LyricsPage> {
             ),
             // 上一首
             IconButton(
-              onPressed: () {},
+              onPressed: logic.handlePreBtn,
               icon: SvgPicture.asset(
                 "lib/assets/icons/previous.svg",
                 fit: BoxFit.contain,
@@ -268,16 +265,18 @@ class _LyricsPageState extends State<LyricsPage> {
             ),
             // 播放
             IconButton(
-              onPressed: () {},
-              icon: SvgPicture.asset(
-                "lib/assets/icons/play.svg",
-                fit: BoxFit.contain,
-                width: screenAdaptor.getLengthByOrientation(40.w, 20.w),
-              ),
+              onPressed: logic.handlePlayBtn,
+              icon: Obx(() {
+                return SvgPicture.asset(
+                  state.isPlaying.value ? "lib/assets/icons/pause.svg" : "lib/assets/icons/play.svg",
+                  fit: BoxFit.contain,
+                  width: screenAdaptor.getLengthByOrientation(40.w, 20.w),
+                );
+              }),
             ),
             // 下一首
             IconButton(
-              onPressed: () {},
+              onPressed: logic.handleNextBtn,
               icon: SvgPicture.asset(
                 "lib/assets/icons/next.svg",
                 fit: BoxFit.contain,
@@ -306,15 +305,19 @@ class _LyricsPageState extends State<LyricsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "0:00",
-            style: TextStyle(
-              color: Colors.black54,
-              decoration: TextDecoration.none,
-              fontWeight: FontWeight.normal,
-              fontSize: screenAdaptor.getLengthByOrientation(20.sp, 10.sp),
-            ),
-          ),
+          Obx(() {
+            return Text(
+              logic.getSongProgressText(),
+              style: TextStyle(
+                color: Colors.black54,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.normal,
+                wordSpacing: 0,
+                letterSpacing: 0,
+                fontSize: screenAdaptor.getLengthByOrientation(20.sp, 10.sp),
+              ),
+            );
+          }),
           // 进度条
           Expanded(
             child: Card(
@@ -329,30 +332,23 @@ class _LyricsPageState extends State<LyricsPage> {
                   disabledInactiveTrackColor: Colors.blue,
                   thumbColor: Colors.white,
                   overlayShape:
-                      const RoundSliderOverlayShape(overlayRadius: 20),
+                  const RoundSliderOverlayShape(overlayRadius: 20),
                   thumbShape:
-                      const RoundSliderThumbShape(enabledThumbRadius: 7),
+                  const RoundSliderThumbShape(enabledThumbRadius: 7),
                 ),
                 child: Obx(() {
                   return Slider(
                     value: state.lyricsProgress.value,
+                    secondaryTrackValue: state.lyricsProgressNoBlock.value,
                     inactiveColor: Colors.grey[500],
                     thumbColor: Colors.black,
                     activeColor: Colors.black,
+                    secondaryActiveColor: Colors.black,
                     onChanged: (double value) {
                       state.lyricsProgress.value = value;
                     },
-                    onChangeStart: (double value) {
-                      state.timer.cancel();
-                    },
-                    onChangeEnd: (double value) {
-                      state.lyricsProgress.value = value;
-                      player.audioPlayer.seek(Duration(
-                          milliseconds: (state.lyricsProgress.value *
-                                  player.duration.value)
-                              .toInt()));
-                      logic.startTimerMusicPrecess();
-                    },
+                    onChangeStart: logic.startMusicProcessDrag,
+                    onChangeEnd: logic.endMusicProcessDrag,
                   );
                 }),
               ),
@@ -366,6 +362,8 @@ class _LyricsPageState extends State<LyricsPage> {
                 color: Colors.black54,
                 decoration: TextDecoration.none,
                 fontWeight: FontWeight.normal,
+                wordSpacing: 0,
+                letterSpacing: 0,
                 fontSize: screenAdaptor.getLengthByOrientation(20.sp, 10.sp),
               ),
             );

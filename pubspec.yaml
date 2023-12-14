@@ -71,7 +71,7 @@ dependencies:
   # 锚点列表
   scrollable_positioned_list: ^0.3.8
   # 音乐播放
-  audioplayers: ^5.2.1
+  just_audio: ^0.9.36
   # 多语言本地化
   flutter_localizations:
     sdk: flutter
