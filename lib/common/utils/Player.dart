@@ -14,7 +14,6 @@ class Player {
   AudioPlayer getAudioPlayer() {
     if(_audioPlayer == null) {
       _audioPlayer = AudioPlayer();
-
       // 监听播放进度
       _audioPlayer?.positionStream.listen((Duration position) {
         // print("onPositionChanged: ${position.inMilliseconds}");

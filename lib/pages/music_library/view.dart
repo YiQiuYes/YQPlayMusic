@@ -92,7 +92,7 @@ class MusicLibraryPageState extends State<MusicLibraryPage>
                 // 间距
                 SliverToBoxAdapter(
                   child: SizedBox(
-                    height: screenAdaptor.getLengthByOrientation(40.h, 70.h),
+                    height: screenAdaptor.getLengthByOrientation(40.h, 150.h),
                   ),
                 ),
               ],

@@ -81,6 +81,12 @@ class _ExplorePageState extends State<ExplorePage>
             SliverToBoxAdapter(child: logic.getEnableCategoriesPanel()),
             // 获取专辑列表
             _getPlayListWidget(),
+            // 安全距离
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: screenAdaptor.getLengthByOrientation(44.h, 150.h),
+              ),
+            ),
           ],
         ),
       ),

@@ -43,7 +43,7 @@ class CoverRow extends StatelessWidget {
     } else if (subText == "updateFrequency") {
       return item["updateFrequency"];
     } else if (subText == "copywriter") {
-      return item["copywriter"];
+      return item["copywriter"] ?? "";
     } else if (subText == "creator") {
       return "by ${item["creator"]["nickname"]}";
     }

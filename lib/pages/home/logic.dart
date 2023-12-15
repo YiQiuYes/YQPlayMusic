@@ -29,14 +29,19 @@ class HomeLogic extends GetxController {
       await checkLoginStatus();
     }
     if (state.loginStatus.value) {
-      var resRecommend = await playListManager
+      var resRecommendResult = await playListManager
           .getRecommendPlayList(limit: 8)
-          .then((value) => jsonDecode(value.data));
+          .then((value) => value.data);
+      var resRecommend = resRecommendResult is String
+          ? jsonDecode(resRecommendResult)
+          : resRecommendResult;
 
-      var resDailyRecommend = await playListManager
+      var resDailyRecommendResult = await playListManager
           .getDailyRecommendPlayList(limit: 30)
-          .then((value) => jsonDecode(value.data));
-
+          .then((value) => value.data);
+      var resDailyRecommend = resDailyRecommendResult is String
+          ? jsonDecode(resDailyRecommendResult)
+          : resDailyRecommendResult;
       if (resDailyRecommend["code"] == 200 && resRecommend["code"] == 200) {
         List<dynamic> list = [];
         // 合并list

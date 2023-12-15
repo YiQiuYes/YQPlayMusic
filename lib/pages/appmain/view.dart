@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 
 import 'package:yqplaymusic/common/utils/backdropcssfilter/css_filter.dart';
 import 'package:yqplaymusic/common/utils/screenadaptor.dart';
+import 'package:yqplaymusic/pages/lyrics/view.dart';
 
 import '../../common/alterwidgets/WDCustomTrackShape.dart';
 import '../../common/utils/backdropcssfilter/filter.dart';
@@ -26,7 +27,9 @@ class AppMainPage extends StatefulWidget {
 class _AppMainPageState extends State<AppMainPage>
     with TickerProviderStateMixin {
   final logic = Get.put(AppMainLogic());
-  final state = Get.find<AppMainLogic>().state;
+  final state = Get
+      .find<AppMainLogic>()
+      .state;
 
   @override
   void initState() {
@@ -36,12 +39,20 @@ class _AppMainPageState extends State<AppMainPage>
     logic.checkLoginStatus();
     // 获取渐变颜色
     logic.getGradientColor();
+
+    // 歌词页动画限制
+    state.lyricsPageAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
   }
 
   @override
   void dispose() {
     state.advancedDrawerController.dispose();
     state.tabController.dispose();
+
+    state.lyricsPageAnimationController.dispose();
     super.dispose();
   }
 
@@ -96,7 +107,7 @@ class _AppMainPageState extends State<AppMainPage>
                   margin: EdgeInsets.only(
                     top: screenAdaptor.getLengthByOrientation(50.0.h, 20.0.h),
                     bottom:
-                        screenAdaptor.getLengthByOrientation(60.0.h, 25.0.h),
+                    screenAdaptor.getLengthByOrientation(60.0.h, 25.0.h),
                   ),
                   clipBehavior: Clip.antiAlias,
                   decoration: const BoxDecoration(
@@ -104,10 +115,11 @@ class _AppMainPageState extends State<AppMainPage>
                     shape: BoxShape.circle,
                   ),
                   child: Obx(
-                    () => CSSFilter.blur(
-                      value: 0.3,
-                      child: Image.network(state.drawerUserImgUrl.value),
-                    ),
+                        () =>
+                        CSSFilter.blur(
+                          value: 0.3,
+                          child: Image.network(state.drawerUserImgUrl.value),
+                        ),
                   ),
                 ),
                 SizedBox(
@@ -121,10 +133,12 @@ class _AppMainPageState extends State<AppMainPage>
                         leading: Icon(
                           Icons.account_circle_rounded,
                           size:
-                              screenAdaptor.getLengthByOrientation(38.w, 22.w),
+                          screenAdaptor.getLengthByOrientation(38.w, 22.w),
                         ),
                         title: Text(
-                          S.of(context).drawer_tile_user,
+                          S
+                              .of(context)
+                              .drawer_tile_user,
                           style: TextStyle(
                             fontSize: screenAdaptor.getLengthByOrientation(
                                 30.sp, 18.sp),
@@ -136,10 +150,12 @@ class _AppMainPageState extends State<AppMainPage>
                         leading: Icon(
                           Icons.settings,
                           size:
-                              screenAdaptor.getLengthByOrientation(38.w, 22.w),
+                          screenAdaptor.getLengthByOrientation(38.w, 22.w),
                         ),
                         title: Text(
-                          S.of(context).drawer_tile_setting,
+                          S
+                              .of(context)
+                              .drawer_tile_setting,
                           style: TextStyle(
                             fontSize: screenAdaptor.getLengthByOrientation(
                                 30.sp, 18.sp),
@@ -153,13 +169,13 @@ class _AppMainPageState extends State<AppMainPage>
                 DefaultTextStyle(
                   style: TextStyle(
                     fontSize:
-                        screenAdaptor.getLengthByOrientation(25.0.sp, 14.0.sp),
+                    screenAdaptor.getLengthByOrientation(25.0.sp, 14.0.sp),
                     color: Colors.white54,
                   ),
                   child: Container(
                     margin: EdgeInsets.symmetric(
                       vertical:
-                          screenAdaptor.getLengthByOrientation(20.0.h, 16.0.h),
+                      screenAdaptor.getLengthByOrientation(20.0.h, 16.0.h),
                     ),
                     child: const Text("Powered by YiQiu"),
                   ),
@@ -200,7 +216,7 @@ class _AppMainPageState extends State<AppMainPage>
                         // 不显示底部分割线
                         showDefaultBottom: false,
                         backgroundColor:
-                            const Color.fromRGBO(255, 255, 255, 0.75),
+                        const Color.fromRGBO(255, 255, 255, 0.75),
                         title: BrnTabBar(
                           indicatorColor: Colors.transparent,
                           backgroundcolor: Colors.transparent,
@@ -225,7 +241,7 @@ class _AppMainPageState extends State<AppMainPage>
                           ),
                         ),
                         leadingWidth:
-                            screenAdaptor.getLengthByOrientation(68.w, 100.w),
+                        screenAdaptor.getLengthByOrientation(68.w, 100.w),
                         leading: IconButton(
                           onPressed: logic.handleMenuButtonPress, // 打开侧边栏
                           icon: const Icon(Icons.menu),
@@ -255,11 +271,23 @@ class _AppMainPageState extends State<AppMainPage>
                 ),
                 // 获取进度条
                 Positioned(
-                  bottom: screenAdaptor.getLengthByOrientation(72.h, 118.h),
+                  bottom: screenAdaptor.getLengthByOrientation(77.h, 126.h),
                   left: 0,
                   right: 0,
                   child: _getMusicPlayIndicator(),
-                )
+                ),
+                // 歌词页
+                Positioned(
+                  top: state.lyricsPageAnimation?.value ??
+                      ScreenUtil().screenHeight,
+                  child: ClipRRect(
+                    child: SizedBox(
+                      width: ScreenUtil().screenWidth,
+                      height: ScreenUtil().screenHeight,
+                      child: const LyricsPage(),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -324,7 +352,7 @@ class _AppMainPageState extends State<AppMainPage>
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize:
-                              screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
+                          screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
                           color: Colors.black38,
                         ),
                       ),
@@ -435,7 +463,7 @@ class _AppMainPageState extends State<AppMainPage>
                   // 呼出歌词界面
                   IconButton(
                     onPressed: () {
-                      Get.toNamed(RouteConfig.lyrics);
+                      logic.showLyricsPageBtn(this);
                     },
                     icon: SvgPicture.asset(
                       "lib/assets/icons/arrow-up.svg",
@@ -454,25 +482,34 @@ class _AppMainPageState extends State<AppMainPage>
 
   // 获取音乐播放进度条指示器
   Widget _getMusicPlayIndicator() {
-    return SliderTheme(
-      data: SliderThemeData(
-        trackHeight: 3,
-        inactiveTrackColor: Colors.grey[300],
-        activeTrackColor: Colors.blue,
-        disabledActiveTrackColor: Colors.blue,
-        disabledInactiveTrackColor: Colors.blue,
-        thumbColor: Colors.white,
-        trackShape: WDCustomTrackShape(addHeight: 0),
-        overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
-      ),
-      child: Obx(() {
-        return Slider(
-          value: state.musicProgress.value,
-          onChanged: (value) {
-            state.musicProgress.value = value;
-          },
-        );
-      }),
-    );
+    // 返回一个进度条指示器 
+    return Obx(() {
+      return LinearProgressIndicator(
+        value: state.musicProgress.value,
+        backgroundColor: Colors.grey[300],
+        color: Colors.blue,
+      );
+    });
+
+    // return SliderTheme(
+    //   data: SliderThemeData(
+    //     trackHeight: 3,
+    //     inactiveTrackColor: Colors.grey[300],
+    //     activeTrackColor: Colors.blue,
+    //     disabledActiveTrackColor: Colors.blue,
+    //     disabledInactiveTrackColor: Colors.blue,
+    //     thumbColor: Colors.white,
+    //     trackShape: WDCustomTrackShape(addHeight: 0),
+    //     overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
+    //   ),
+    //   child: Obx(() {
+    //     return Slider(
+    //       value: state.musicProgress.value,
+    //       onChanged: (value) {
+    //         state.musicProgress.value = value;
+    //       },
+    //     );
+    //   }),
+    // );
   }
 }

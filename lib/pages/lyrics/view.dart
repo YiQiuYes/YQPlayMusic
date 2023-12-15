@@ -5,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:yqplaymusic/common/utils/EventBusDistribute.dart';
 import 'package:yqplaymusic/common/utils/Player.dart';
+import 'package:yqplaymusic/common/utils/ShareData.dart';
 
 import '../../common/utils/screenadaptor.dart';
 import 'logic.dart';
@@ -27,12 +29,15 @@ class _LyricsPageState extends State<LyricsPage> {
     logic.startTimerMusicPrecess();
     // 设置当前播放位置回调
     player.setCurrentPositionCb(logic.handleLyricsScroll);
+    logic.handleDataListener();
+
     super.initState();
   }
 
   @override
   void dispose() {
     state.timer.cancel();
+    state.streamSubscription.cancel();
     super.dispose();
   }
 

@@ -24,6 +24,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   void initState() {
+    super.initState();
     // 初始化数据
     state.recommendList = logic.getRecommendByLoginStatus().obs;
     state.dailyTracksList = logic.loadDailyTracksSongs().obs;
@@ -31,7 +32,6 @@ class _HomePageState extends State<HomePage>
     state.recommendArtistList = logic.loadRecommendArtist().obs;
     state.newAlbumsList = logic.loadNewAlbums().obs;
     state.topList = logic.loadTopList().obs;
-    super.initState();
   }
 
   @override
@@ -107,7 +107,7 @@ class _HomePageState extends State<HomePage>
               // 安全距离
               SliverToBoxAdapter(
                 child: SizedBox(
-                  height: screenAdaptor.getLengthByOrientation(44.h, 70.h),
+                  height: screenAdaptor.getLengthByOrientation(44.h, 150.h),
                 ),
               ),
             ],

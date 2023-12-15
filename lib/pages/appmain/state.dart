@@ -19,6 +19,12 @@ class AppMainState {
   // 音乐播放进度条
   late RxDouble musicProgress;
 
+  // 歌词页动画限制
+  late AnimationController lyricsPageAnimationController;
+  Animation<double>? lyricsPageAnimation;
+  // 歌词页是否在显示
+  late bool isLyricsPageShow;
+
   // 音乐库页面key
   final GlobalKey<MusicLibraryPageState> musicLibraryPageKey =
       GlobalKey<MusicLibraryPageState>();
@@ -48,6 +54,7 @@ class AppMainState {
     ].obs;
 
     // 音乐播放进度条
-    musicProgress = 0.0.obs;
+    musicProgress = 0.5.obs;
+    isLyricsPageShow = false;
   }
 }

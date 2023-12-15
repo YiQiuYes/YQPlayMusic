@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:yqplaymusic/api/track.dart';
 import 'package:yqplaymusic/common/utils/Player.dart';
 
+import '../../common/utils/EventBusDistribute.dart';
+import '../../common/utils/ShareData.dart';
 import '../../common/utils/screenadaptor.dart';
 import 'state.dart';
 import 'dart:developer' as developer;
@@ -21,6 +25,8 @@ class LyricsLogic extends GetxController {
 
       // 获取歌词
       getSongLyrics();
+      // 获取音乐url
+      getMusicUrl();
     });
   }
 
@@ -139,20 +145,34 @@ class LyricsLogic extends GetxController {
       trackManager
           .getMusicUrl(id: state.musicId.value.toString())
           .then((value) async {
-        // print(value);
         var res = value.data is String ? jsonDecode(value.data) : value.data;
         // developer.log(res.toString());
-        String url = res["data"][0]["url"];
-        // 去除字符串 ?authSecret= 之后的内容 防止音乐识别问题
-        RegExp regex = RegExp(r'\?authSecret=[^&]*');
-        url = url.replaceAll(regex, "");
-        // state.musicUrl.value = url.replaceAll("http:", "https:");
-        state.musicUrl.value = url;
 
-        LockCachingAudioSource lockCachingAudioSource =
-            LockCachingAudioSource(Uri.parse(state.musicUrl.value));
-        await player.audioPlayer.setAudioSource(lockCachingAudioSource);
-        // player.audioPlayer.setUrl(state.musicUrl.value);
+        // 判断文件缓存是否存在
+        Directory directory = await getTemporaryDirectory();
+        String path =
+            "${directory.path}/lockCachingAudioSource/${state.musicId.value}.${res["data"][0]["type"]}";
+        File file = File(path);
+        bool isExists = await file.exists();
+        if (isExists) {
+          // 如果存在缓存直接播放
+          await player.audioPlayer.setFilePath(path);
+        } else {
+          // 处理url
+          String url = res["data"][0]["url"];
+          // 去除字符串 ?authSecret= 之后的内容 防止音乐识别问题
+          RegExp regex = RegExp(r'\?authSecret=[^&]*');
+          url = url.replaceAll(regex, "");
+          state.musicUrl.value = url;
+
+          LockCachingAudioSource lockCachingAudioSource =
+              LockCachingAudioSource(
+            Uri.parse(state.musicUrl.value),
+            cacheFile: File(
+                "${directory.path}/lockCachingAudioSource/${state.musicId.value}.${res["data"][0]["type"]}"),
+          );
+          await player.audioPlayer.setAudioSource(lockCachingAudioSource);
+        }
       });
     }
   }
@@ -222,8 +242,9 @@ class LyricsLogic extends GetxController {
       }
 
       // 如果是最后一个
-      if(flag) {
-        if (state.lyricsScrollPosition.value == state.lyricsTime.length - 1) return;
+      if (flag) {
+        if (state.lyricsScrollPosition.value == state.lyricsTime.length - 1)
+          return;
 
         state.lyricsScrollPosition.value = state.lyricsTime.length - 1;
         // 界面滚动
@@ -273,8 +294,32 @@ class LyricsLogic extends GetxController {
 
   // 刷新数据
   void refreshData() {
-    state.musicId.value = 1361371036;
     getSongInfo();
-    getMusicUrl();
+  }
+
+  // 数据监听处理
+  void handleDataListener() {
+    state.streamSubscription =
+        EventBusManager.eventBus.on<ShareData>().listen((event) {
+      state.musicId.value =
+          int.parse(event.mapData["musicID"] ?? state.musicId.value.toString());
+
+      // 刷新数据
+      refreshData();
+
+      state.isPlaying.value =
+          event.mapData["isPlaying"] ?? state.isPlaying.value;
+      if (state.isPlaying.value) {
+        // 防止切换下一首时音乐残留
+        if (state.musicProcessPosition.value != 0) {
+          // 创建异步任务
+          Future.delayed(const Duration(seconds: 1), () {
+            player.audioPlayer.play();
+          });
+          return;
+        }
+        player.audioPlayer.play();
+      }
+    });
   }
 }

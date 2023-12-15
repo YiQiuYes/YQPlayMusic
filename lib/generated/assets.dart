@@ -96,10 +96,12 @@ class Assets {
   static const String netSsjrequestmanager = 'lib/common/net/ssjrequestmanager.dart';
   static const String routerRouteconfig = 'lib/router/routeconfig.dart';
   static const String utilsCrypto = 'lib/common/utils/crypto.dart';
+  static const String utilsEventBusDistribute = 'lib/common/utils/EventBusDistribute.dart';
   static const String utilsImageutils = 'lib/common/utils/imageutils.dart';
   static const String utilsPlatformutils = 'lib/common/utils/platformutils.dart';
   static const String utilsPlayer = 'lib/common/utils/Player.dart';
   static const String utilsScreenadaptor = 'lib/common/utils/screenadaptor.dart';
+  static const String utilsShareData = 'lib/common/utils/ShareData.dart';
   static const String utilsStaticdata = 'lib/common/utils/staticdata.dart';
 
 }

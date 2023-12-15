@@ -40,6 +40,9 @@ class LyricsState {
   // 是否处于播放状态
   late RxBool isPlaying;
 
+  // 数据共享监听器
+  late StreamSubscription streamSubscription;
+
   LyricsState() {
     // musicId = 29207681.obs;
     musicId = 1456673752.obs;

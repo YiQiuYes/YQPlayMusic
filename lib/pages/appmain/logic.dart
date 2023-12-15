@@ -1,9 +1,12 @@
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:tinycolor2/tinycolor2.dart';
+import 'package:yqplaymusic/common/utils/ShareData.dart';
 import '../../api/auth.dart';
+import '../../common/utils/EventBusDistribute.dart';
 import 'state.dart';
 
 class AppMainLogic extends GetxController {
@@ -17,7 +20,14 @@ class AppMainLogic extends GetxController {
   // 返回键拦截
   Future<bool> onBackPressed() async {
     if (state.advancedDrawerController.value.visible) {
-      state.advancedDrawerController.hideDrawer(); // 隐藏侧边栏
+      // 隐藏侧边栏
+      state.advancedDrawerController.hideDrawer();
+      return false;
+    }
+
+    if(state.isLyricsPageShow) {
+      state.isLyricsPageShow = false;
+      state.lyricsPageAnimationController.reverse();
       return false;
     }
 
@@ -28,10 +38,10 @@ class AppMainLogic extends GetxController {
     state.tabController =
         TabController(length: state.tabs.length, vsync: tickerProvider);
     state.tabController.addListener(() {
-      switch(state.tabController.index) {
+      switch (state.tabController.index) {
         case 2:
           {
-            if(state.tabController.indexIsChanging) return;
+            if (state.tabController.indexIsChanging) return;
             // 音乐库页面
             state.musicLibraryPageKey.currentState?.logic.getRandomLyric();
           }
@@ -59,11 +69,34 @@ class AppMainLogic extends GetxController {
 
   // 渐变颜色获取
   void getGradientColor() {
-    PaletteGenerator.fromImageProvider(Image.network(state.drawerUserImgUrl.value).image).then((value) {
+    PaletteGenerator.fromImageProvider(
+            Image.network(state.drawerUserImgUrl.value).image)
+        .then((value) {
       TinyColor color = TinyColor.fromColor(value.dominantColor!.color);
       Color dominantColorBottomRight = color.darken(10).color;
       Color dominantColorTopLeft = color.lighten(28).spin(-30).color;
-      state.gradientColors.value = [dominantColorTopLeft, dominantColorBottomRight];
+      state.gradientColors.value = [
+        dominantColorTopLeft,
+        dominantColorBottomRight
+      ];
     });
+  }
+
+  // 呼出歌词页面逻辑
+  void showLyricsPageBtn(var thisPtr) {
+    // 开始执行动画
+    state.lyricsPageAnimation = Tween<double>(
+      begin: ScreenUtil().screenWidth,
+      end: 0,
+    ).animate(state.lyricsPageAnimationController)
+      ..addListener(() {
+        thisPtr.setState(() {});
+      });
+    state.lyricsPageAnimationController.forward();
+    // 显示歌词页面
+    state.isLyricsPageShow = true;
+
+    // 发送事件
+    EventBusManager.eventBus.fire(ShareData(musicID: "1958354765", isPlaying: true));
   }
 }

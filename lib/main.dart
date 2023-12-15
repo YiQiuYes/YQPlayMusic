@@ -60,7 +60,7 @@ class MyApp extends StatelessWidget {
           ),
           getPages: RouteConfig.getPages,
           // 初始化主页
-          initialRoute: RouteConfig.lyrics,
+          initialRoute: RouteConfig.main,
         );
       },
     );
