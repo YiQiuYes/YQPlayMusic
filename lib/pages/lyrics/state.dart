@@ -42,7 +42,7 @@ class LyricsState {
 
   LyricsState() {
     // musicId = 29207681.obs;
-    musicId = 1807381939.obs;
+    musicId = 1456673752.obs;
     songInfo = {}.obs;
     lyricsProgress = 0.0.obs;
     lyricsProgressNoBlock = 0.0.obs;

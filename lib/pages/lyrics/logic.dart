@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:yqplaymusic/api/track.dart';
 import 'package:yqplaymusic/common/utils/Player.dart';
 
@@ -30,7 +31,7 @@ class LyricsLogic extends GetxController {
     } else if (type == "cover" && state.songInfo.isNotEmpty) {
       return state.songInfo["songs"][0]["al"]["picUrl"] + "?param=1024y1024";
     } else {
-      return "https://p2.music.126.net/VnZiScyynLG7atLIZ2YPkw==/18686200114669622.jpg?param=512y512";
+      return "https://p2.music.126.net/VnZiScyynLG7atLIZ2YPkw==/18686200114669622.jpg?param=1024y1024";
     }
   }
 
@@ -92,7 +93,7 @@ class LyricsLogic extends GetxController {
       trackManager.getLyric(id: state.musicId.value.toString()).then((value) {
         var res = value.data is String ? jsonDecode(value.data) : value.data;
         List<String> lyrics = res["lrc"]["lyric"].split("\n");
-
+        // developer.log(lyrics.toString());
         List lyricResult = lyrics.map((e) {
           String lyricLine = e.split("]").last;
           if (lyricLine.contains("作词") ||
@@ -137,7 +138,7 @@ class LyricsLogic extends GetxController {
     if (state.songInfo.isNotEmpty) {
       trackManager
           .getMusicUrl(id: state.musicId.value.toString())
-          .then((value) {
+          .then((value) async {
         // print(value);
         var res = value.data is String ? jsonDecode(value.data) : value.data;
         // developer.log(res.toString());
@@ -145,9 +146,13 @@ class LyricsLogic extends GetxController {
         // 去除字符串 ?authSecret= 之后的内容 防止音乐识别问题
         RegExp regex = RegExp(r'\?authSecret=[^&]*');
         url = url.replaceAll(regex, "");
-        state.musicUrl.value = url.replaceAll("http:", "https:");
+        // state.musicUrl.value = url.replaceAll("http:", "https:");
+        state.musicUrl.value = url;
 
-        player.audioPlayer.setUrl(state.musicUrl.value);
+        LockCachingAudioSource lockCachingAudioSource =
+            LockCachingAudioSource(Uri.parse(state.musicUrl.value));
+        await player.audioPlayer.setAudioSource(lockCachingAudioSource);
+        // player.audioPlayer.setUrl(state.musicUrl.value);
       });
     }
   }
@@ -194,20 +199,40 @@ class LyricsLogic extends GetxController {
   void handleLyricsScroll(int currentTime) {
     if (state.lyricsTime.isNotEmpty && state.lyrics.isNotEmpty) {
       // developer.log(state.lyricsTime.toString());
-      for (int i = 0; i < state.lyricsTime.length; i++) {
-        if (currentTime < state.lyricsTime[i]) {
+      // developer.log(currentTime.toString());
+      // 查看循环有无break
+      bool flag = true;
+      for (int i = 0; i < state.lyricsTime.length - 1; i++) {
+        if (currentTime >= state.lyricsTime[i] &&
+            currentTime < state.lyricsTime[i + 1]) {
+          flag = false;
           if (state.lyricsScrollPosition.value == i) break;
 
           state.lyricsScrollPosition.value = i;
           // 界面滚动
           if (!state.isUserScrollLyrics) {
             state.itemScrollController.scrollTo(
-              index: i - 1,
+              index: state.lyricsScrollPosition.value,
               duration: const Duration(milliseconds: 200),
               alignment: screenAdaptor.getLengthByOrientation(0.47, 0.35),
             );
           }
           break;
+        }
+      }
+
+      // 如果是最后一个
+      if(flag) {
+        if (state.lyricsScrollPosition.value == state.lyricsTime.length - 1) return;
+
+        state.lyricsScrollPosition.value = state.lyricsTime.length - 1;
+        // 界面滚动
+        if (!state.isUserScrollLyrics) {
+          state.itemScrollController.scrollTo(
+            index: state.lyricsScrollPosition.value,
+            duration: const Duration(milliseconds: 200),
+            alignment: screenAdaptor.getLengthByOrientation(0.47, 0.35),
+          );
         }
       }
     }
@@ -243,6 +268,13 @@ class LyricsLogic extends GetxController {
 
   // 下一首按钮逻辑
   void handleNextBtn() {
+    getMusicUrl();
+  }
+
+  // 刷新数据
+  void refreshData() {
+    state.musicId.value = 1361371036;
+    getSongInfo();
     getMusicUrl();
   }
 }
