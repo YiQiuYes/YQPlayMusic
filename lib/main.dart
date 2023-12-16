@@ -22,6 +22,7 @@ void main() {
       statusBarColor: Colors.transparent,
       statusBarBrightness: Brightness.dark,
       systemNavigationBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
     );
     SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -55,8 +56,6 @@ class MyApp extends StatelessWidget {
             fontFamily: "PingFang",
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
             useMaterial3: true,
-            // 去除TabBar底部线条
-            tabBarTheme: const TabBarTheme(dividerColor: Colors.transparent),
           ),
           getPages: RouteConfig.getPages,
           // 初始化主页

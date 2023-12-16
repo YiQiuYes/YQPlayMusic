@@ -24,7 +24,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "appbar_tab_explore": MessageLookupByLibrary.simpleMessage("发现"),
         "appbar_tab_home": MessageLookupByLibrary.simpleMessage("首页"),
-        "appbar_tab_library": MessageLookupByLibrary.simpleMessage("乐库"),
+        "appbar_tab_library": MessageLookupByLibrary.simpleMessage("音乐库"),
         "drawer_tile_setting": MessageLookupByLibrary.simpleMessage("设置中心"),
         "drawer_tile_user": MessageLookupByLibrary.simpleMessage("用户详细"),
         "loginWithEmail": MessageLookupByLibrary.simpleMessage("邮箱登录"),

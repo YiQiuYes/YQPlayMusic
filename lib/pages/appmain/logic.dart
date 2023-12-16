@@ -1,12 +1,14 @@
-import 'package:bruno/bruno.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:tinycolor2/tinycolor2.dart';
-import 'package:yqplaymusic/common/utils/ShareData.dart';
 import '../../api/auth.dart';
 import '../../common/utils/EventBusDistribute.dart';
+import '../../common/utils/Player.dart';
+import '../../common/utils/ShareData.dart';
 import 'state.dart';
 
 class AppMainLogic extends GetxController {
@@ -25,18 +27,30 @@ class AppMainLogic extends GetxController {
       return false;
     }
 
-    if(state.isLyricsPageShow) {
-      state.isLyricsPageShow = false;
-      state.lyricsPageAnimationController.reverse();
+    if (state.isLyricsPageShow.value) {
+      // 开始执行动画
+      state.lyricsPageAnimation = Tween<double>(
+        begin: ScreenUtil().screenHeight,
+        end: 0,
+      ).animate(state.lyricsPageAnimationController);
+      state.lyricsPageAnimationController.reverse().then((value) {
+        state.isLyricsPageShow.value = false;
+      });
       return false;
     }
 
     return true;
   }
 
+  // tab切换逻辑
+  void handleTabChange({required int index}) {
+    state.currentTabIndex.value = index;
+    state.tabController.animateTo(index);
+  }
+
   void tabControllerInit(TickerProvider tickerProvider) {
     state.tabController =
-        TabController(length: state.tabs.length, vsync: tickerProvider);
+        TabController(length: state.tabViews.length, vsync: tickerProvider);
     state.tabController.addListener(() {
       switch (state.tabController.index) {
         case 2:
@@ -51,11 +65,6 @@ class AppMainLogic extends GetxController {
 
     // 切换为音乐库页面 TODO: 记得删除
     state.tabController.animateTo(0);
-  }
-
-  // 路由跳转控制
-  void brnTabBarOnTap(BrnTabBarState brnState, int index) {
-    brnState.refreshBadgeState(index);
   }
 
   // 检查用户登录状态
@@ -83,20 +92,52 @@ class AppMainLogic extends GetxController {
   }
 
   // 呼出歌词页面逻辑
-  void showLyricsPageBtn(var thisPtr) {
+  void showLyricsPageBtn() {
     // 开始执行动画
     state.lyricsPageAnimation = Tween<double>(
-      begin: ScreenUtil().screenWidth,
+      begin: ScreenUtil().screenHeight,
       end: 0,
-    ).animate(state.lyricsPageAnimationController)
-      ..addListener(() {
-        thisPtr.setState(() {});
-      });
-    state.lyricsPageAnimationController.forward();
-    // 显示歌词页面
-    state.isLyricsPageShow = true;
+    ).animate(state.lyricsPageAnimationController);
 
-    // 发送事件
-    EventBusManager.eventBus.fire(ShareData(musicID: "1958354765", isPlaying: true));
+    // 显示歌词页面
+    state.isLyricsPageShow.value = true;
+    state.lyricsPageAnimationController.forward();
+  }
+
+  // 定时器歌曲进度获取
+  void listenMusicPrecess() {
+    player.setCurrentPositionCb(() {
+      double result =
+      (player.duration == 0 ? 0 : player.position / player.duration);
+
+      // 获取进度条进度
+      if (result > 1.0) {
+        state.musicProgress.value = 1.0;
+      } else {
+        state.musicProgress.value = result;
+      }
+    });
+  }
+
+  // 数据监听处理
+  void handleDataListener() {
+    state.streamSubscription =
+        EventBusManager.eventBus.on<ShareData>().listen((event) {
+      state.musicId.value =
+          int.parse(event.mapData["musicID"] ?? state.musicId.value.toString());
+      // 刷新数据
+      if(event.mapData["musicImageUrl"] != null) {
+        state.musicImgUrl.value = event.mapData["musicImageUrl"];
+      }
+      if(event.mapData["musicName"] != null) {
+        state.musicName.value = event.mapData["musicName"];
+      }
+      if(event.mapData["musicArtist"] != null) {
+        state.musicArtist.value = event.mapData["musicArtist"];
+      }
+      if(event.mapData["isPlaying"] != null) {
+        state.isPlaying.value = event.mapData["isPlaying"];
+      }
+    });
   }
 }

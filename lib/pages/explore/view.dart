@@ -43,7 +43,7 @@ class _ExplorePageState extends State<ExplorePage>
         width: ScreenUtil().screenWidth,
         height: ScreenUtil().screenHeight,
         child: CustomScrollView(
-          anchor: 0.06,
+          anchor: 0.08,
           slivers: [
             // 发现文本
             SliverToBoxAdapter(

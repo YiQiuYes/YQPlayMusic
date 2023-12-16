@@ -1,4 +1,3 @@
-import 'package:bruno/bruno.dart';
 import 'package:css_filter/css_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,9 +26,7 @@ class AppMainPage extends StatefulWidget {
 class _AppMainPageState extends State<AppMainPage>
     with TickerProviderStateMixin {
   final logic = Get.put(AppMainLogic());
-  final state = Get
-      .find<AppMainLogic>()
-      .state;
+  final state = Get.find<AppMainLogic>().state;
 
   @override
   void initState() {
@@ -45,6 +42,13 @@ class _AppMainPageState extends State<AppMainPage>
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
+    state.lyricsPageAnimationController.addListener(() {
+      setState(() {});
+    });
+    // 数据总线
+    logic.handleDataListener();
+    // 歌曲进度
+    logic.listenMusicPrecess();
   }
 
   @override
@@ -53,6 +57,7 @@ class _AppMainPageState extends State<AppMainPage>
     state.tabController.dispose();
 
     state.lyricsPageAnimationController.dispose();
+    state.streamSubscription.cancel();
     super.dispose();
   }
 
@@ -107,7 +112,7 @@ class _AppMainPageState extends State<AppMainPage>
                   margin: EdgeInsets.only(
                     top: screenAdaptor.getLengthByOrientation(50.0.h, 20.0.h),
                     bottom:
-                    screenAdaptor.getLengthByOrientation(60.0.h, 25.0.h),
+                        screenAdaptor.getLengthByOrientation(60.0.h, 25.0.h),
                   ),
                   clipBehavior: Clip.antiAlias,
                   decoration: const BoxDecoration(
@@ -115,11 +120,10 @@ class _AppMainPageState extends State<AppMainPage>
                     shape: BoxShape.circle,
                   ),
                   child: Obx(
-                        () =>
-                        CSSFilter.blur(
-                          value: 0.3,
-                          child: Image.network(state.drawerUserImgUrl.value),
-                        ),
+                    () => CSSFilter.blur(
+                      value: 0.3,
+                      child: Image.network(state.drawerUserImgUrl.value),
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -133,12 +137,10 @@ class _AppMainPageState extends State<AppMainPage>
                         leading: Icon(
                           Icons.account_circle_rounded,
                           size:
-                          screenAdaptor.getLengthByOrientation(38.w, 22.w),
+                              screenAdaptor.getLengthByOrientation(38.w, 22.w),
                         ),
                         title: Text(
-                          S
-                              .of(context)
-                              .drawer_tile_user,
+                          S.of(context).drawer_tile_user,
                           style: TextStyle(
                             fontSize: screenAdaptor.getLengthByOrientation(
                                 30.sp, 18.sp),
@@ -150,12 +152,10 @@ class _AppMainPageState extends State<AppMainPage>
                         leading: Icon(
                           Icons.settings,
                           size:
-                          screenAdaptor.getLengthByOrientation(38.w, 22.w),
+                              screenAdaptor.getLengthByOrientation(38.w, 22.w),
                         ),
                         title: Text(
-                          S
-                              .of(context)
-                              .drawer_tile_setting,
+                          S.of(context).drawer_tile_setting,
                           style: TextStyle(
                             fontSize: screenAdaptor.getLengthByOrientation(
                                 30.sp, 18.sp),
@@ -169,13 +169,13 @@ class _AppMainPageState extends State<AppMainPage>
                 DefaultTextStyle(
                   style: TextStyle(
                     fontSize:
-                    screenAdaptor.getLengthByOrientation(25.0.sp, 14.0.sp),
+                        screenAdaptor.getLengthByOrientation(25.0.sp, 14.0.sp),
                     color: Colors.white54,
                   ),
                   child: Container(
                     margin: EdgeInsets.symmetric(
                       vertical:
-                      screenAdaptor.getLengthByOrientation(20.0.h, 16.0.h),
+                          screenAdaptor.getLengthByOrientation(20.0.h, 16.0.h),
                     ),
                     child: const Text("Powered by YiQiu"),
                   ),
@@ -204,63 +204,7 @@ class _AppMainPageState extends State<AppMainPage>
                     value: 8,
                     child: SizedBox(
                       width: ScreenUtil().screenWidth,
-                      child: BrnAppBar(
-                        // 状态栏和底部栏样式
-                        systemOverlayStyle: const SystemUiOverlayStyle(
-                          statusBarColor: Colors.transparent,
-                          statusBarIconBrightness: Brightness.dark,
-                          statusBarBrightness: Brightness.dark,
-                          systemNavigationBarColor: Colors.transparent,
-                        ),
-                        primary: true,
-                        // 不显示底部分割线
-                        showDefaultBottom: false,
-                        backgroundColor:
-                        const Color.fromRGBO(255, 255, 255, 0.75),
-                        title: BrnTabBar(
-                          indicatorColor: Colors.transparent,
-                          backgroundcolor: Colors.transparent,
-                          // tab边距
-                          padding: EdgeInsets.fromLTRB(
-                              screenAdaptor.getLengthByOrientation(160.w, 70.w),
-                              0,
-                              screenAdaptor.getLengthByOrientation(
-                                  160.w, 100.w),
-                              0),
-                          mode: BrnTabBarBadgeMode.origin,
-                          controller: state.tabController,
-                          tabs: state.tabs,
-                          onTap: logic.brnTabBarOnTap,
-                          labelStyle: const TextStyle(
-                            backgroundColor: Colors.transparent,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          unselectedLabelStyle: const TextStyle(
-                            backgroundColor: Colors.transparent,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        leadingWidth:
-                        screenAdaptor.getLengthByOrientation(68.w, 100.w),
-                        leading: IconButton(
-                          onPressed: logic.handleMenuButtonPress, // 打开侧边栏
-                          icon: const Icon(Icons.menu),
-                        ),
-                        themeData: BrnAppBarConfig(
-                          itemSpacing: 0,
-                          leftAndRightPadding: 0,
-                        ),
-                        actions: <Widget>[
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.search),
-                          ),
-                          SizedBox(
-                            width: screenAdaptor.getLengthByOrientation(
-                                15.w, 40.w),
-                          )
-                        ],
-                      ),
+                      child: _getMusicAppBar(),
                     ),
                   ),
                 ),
@@ -280,13 +224,19 @@ class _AppMainPageState extends State<AppMainPage>
                 Positioned(
                   top: state.lyricsPageAnimation?.value ??
                       ScreenUtil().screenHeight,
-                  child: ClipRRect(
-                    child: SizedBox(
-                      width: ScreenUtil().screenWidth,
-                      height: ScreenUtil().screenHeight,
-                      child: const LyricsPage(),
-                    ),
-                  ),
+                  child: Obx(() {
+                    return Visibility(
+                      visible: state.isLyricsPageShow.value,
+                      maintainState: true,
+                      child: ClipRRect(
+                        child: SizedBox(
+                          width: ScreenUtil().screenWidth,
+                          height: ScreenUtil().screenHeight,
+                          child: const LyricsPage(),
+                        ),
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
@@ -318,7 +268,7 @@ class _AppMainPageState extends State<AppMainPage>
                 borderRadius: BorderRadius.circular(
                     screenAdaptor.getLengthByOrientation(5.w, 4.w)),
                 child: Image.network(
-                  "${state.drawerUserImgUrl.value}?param=212y212",
+                  state.musicImgUrl.value,
                   fit: BoxFit.contain,
                 ),
               );
@@ -336,26 +286,30 @@ class _AppMainPageState extends State<AppMainPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        "歌曲名",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: screenAdaptor.getLengthByOrientation(
-                              16.sp, 11.sp),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "歌手名",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize:
-                          screenAdaptor.getLengthByOrientation(12.sp, 8.sp),
-                          color: Colors.black38,
-                        ),
-                      ),
+                      Obx(() {
+                        return Text(
+                          state.musicName.value,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: screenAdaptor.getLengthByOrientation(
+                                16.sp, 11.sp),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }),
+                      Obx(() {
+                        return Text(
+                          state.musicArtist.value,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: screenAdaptor.getLengthByOrientation(
+                                12.sp, 8.sp),
+                            color: Colors.black38,
+                          ),
+                        );
+                      }),
                     ],
                   ),
                   // 间距
@@ -394,11 +348,16 @@ class _AppMainPageState extends State<AppMainPage>
                   ),
                   IconButton(
                     onPressed: () {},
-                    icon: SvgPicture.asset(
-                      "lib/assets/icons/play.svg",
-                      width: screenAdaptor.getLengthByOrientation(30.w, 20.w),
-                      height: screenAdaptor.getLengthByOrientation(30.w, 20.w),
-                    ),
+                    icon: Obx(() {
+                      return SvgPicture.asset(
+                        state.isPlaying.value
+                            ? "lib/assets/icons/pause.svg"
+                            : "lib/assets/icons/play.svg",
+                        width: screenAdaptor.getLengthByOrientation(30.w, 20.w),
+                        height:
+                            screenAdaptor.getLengthByOrientation(30.w, 20.w),
+                      );
+                    }),
                   ),
                   // 间距
                   SizedBox(
@@ -462,9 +421,7 @@ class _AppMainPageState extends State<AppMainPage>
                   ),
                   // 呼出歌词界面
                   IconButton(
-                    onPressed: () {
-                      logic.showLyricsPageBtn(this);
-                    },
+                    onPressed: logic.showLyricsPageBtn,
                     icon: SvgPicture.asset(
                       "lib/assets/icons/arrow-up.svg",
                       width: screenAdaptor.getLengthByOrientation(20.w, 13.w),
@@ -482,7 +439,7 @@ class _AppMainPageState extends State<AppMainPage>
 
   // 获取音乐播放进度条指示器
   Widget _getMusicPlayIndicator() {
-    // 返回一个进度条指示器 
+    // 返回一个进度条指示器
     return Obx(() {
       return LinearProgressIndicator(
         value: state.musicProgress.value,
@@ -490,26 +447,131 @@ class _AppMainPageState extends State<AppMainPage>
         color: Colors.blue,
       );
     });
+  }
 
-    // return SliderTheme(
-    //   data: SliderThemeData(
-    //     trackHeight: 3,
-    //     inactiveTrackColor: Colors.grey[300],
-    //     activeTrackColor: Colors.blue,
-    //     disabledActiveTrackColor: Colors.blue,
-    //     disabledInactiveTrackColor: Colors.blue,
-    //     thumbColor: Colors.white,
-    //     trackShape: WDCustomTrackShape(addHeight: 0),
-    //     overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
-    //   ),
-    //   child: Obx(() {
-    //     return Slider(
-    //       value: state.musicProgress.value,
-    //       onChanged: (value) {
-    //         state.musicProgress.value = value;
-    //       },
-    //     );
-    //   }),
-    // );
+  // 获取音乐导航栏
+  Widget _getMusicAppBar() {
+    return Container(
+      height: screenAdaptor.getLengthByOrientation(70.h, 100.h),
+      color: Colors.white.withOpacity(0.75),
+      padding: EdgeInsets.only(
+        left: screenAdaptor.getLengthByOrientation(13.h, 90.h),
+        right: screenAdaptor.getLengthByOrientation(11.h, 95.h),
+      ),
+      child: Stack(
+        children: [
+          // 左侧抽屉
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              onPressed: () {
+                state.advancedDrawerController.showDrawer();
+              },
+              icon: const Icon(Icons.menu),
+            ),
+          ),
+          // 中间导航栏
+          Center(
+            child: Wrap(
+              spacing: screenAdaptor.getLengthByOrientation(20.w, 25.w),
+              children: [
+                // 首页
+                TextButton(
+                  onPressed: () {
+                    logic.handleTabChange(index: 0);
+                  },
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          screenAdaptor.getLengthByOrientation(8.h, 12.h),
+                        ),
+                      ),
+                    ),
+                  ),
+                  child: Obx(() {
+                    return Text(
+                      S.of(context).appbar_tab_home,
+                      style: TextStyle(
+                        fontSize:
+                            screenAdaptor.getLengthByOrientation(18.sp, 10.sp),
+                        fontWeight: FontWeight.bold,
+                        color: state.currentTabIndex.value == 0
+                            ? Colors.blue
+                            : Colors.black,
+                      ),
+                    );
+                  }),
+                ),
+                // 发现
+                TextButton(
+                  onPressed: () {
+                    logic.handleTabChange(index: 1);
+                  },
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          screenAdaptor.getLengthByOrientation(8.h, 12.h),
+                        ),
+                      ),
+                    ),
+                  ),
+                  child: Obx(() {
+                    return Text(
+                      S.of(context).appbar_tab_explore,
+                      style: TextStyle(
+                        fontSize:
+                            screenAdaptor.getLengthByOrientation(18.sp, 10.sp),
+                        fontWeight: FontWeight.bold,
+                        color: state.currentTabIndex.value == 1
+                            ? Colors.blue
+                            : Colors.black,
+                      ),
+                    );
+                  }),
+                ),
+                // 音乐库
+                TextButton(
+                  onPressed: () {
+                    logic.handleTabChange(index: 2);
+                  },
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          screenAdaptor.getLengthByOrientation(8.h, 12.h),
+                        ),
+                      ),
+                    ),
+                  ),
+                  child: Obx(() {
+                    return Text(
+                      S.of(context).appbar_tab_library,
+                      style: TextStyle(
+                        fontSize:
+                            screenAdaptor.getLengthByOrientation(18.sp, 10.sp),
+                        fontWeight: FontWeight.bold,
+                        color: state.currentTabIndex.value == 2
+                            ? Colors.blue
+                            : Colors.black,
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+          // 右侧搜索按钮
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.search),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

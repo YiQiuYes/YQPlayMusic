@@ -8,7 +8,7 @@ class Player {
   // 歌曲总时长
   int duration = 0;
   // cb 函数
-  Function(int)? currentPositionCb;
+  List<Function()> currentPositionCbs = [];
 
   AudioPlayer? _audioPlayer;
   AudioPlayer getAudioPlayer() {
@@ -18,8 +18,10 @@ class Player {
       _audioPlayer?.positionStream.listen((Duration position) {
         // print("onPositionChanged: ${position.inMilliseconds}");
         this.position = position.inMilliseconds;
-        if(currentPositionCb != null) {
-          currentPositionCb!(this.position);
+        if(currentPositionCbs.isNotEmpty) {
+          for (var function in currentPositionCbs) {
+            function();
+          }
         }
       });
 
@@ -32,8 +34,8 @@ class Player {
   }
 
   // 设置cb函数
-  void setCurrentPositionCb(Function(int) currentPositionCb) {
-    this.currentPositionCb = currentPositionCb;
+  void setCurrentPositionCb(Function() currentPositionCb) {
+    currentPositionCbs.add(currentPositionCb);
   }
 
   // 获取播放器

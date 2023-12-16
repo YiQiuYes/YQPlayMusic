@@ -56,9 +56,8 @@ class MusicLibraryPageState extends State<MusicLibraryPage>
           edgeOffset: screenAdaptor.getLengthByOrientation(50.h, 70.h),
           onRefresh: logic.refreshData,
           child: Listener(
-
             child: CustomScrollView(
-              anchor: 0.06,
+              anchor: 0.08,
               controller: state.pageController,
               slivers: [
                 // 音乐库标题

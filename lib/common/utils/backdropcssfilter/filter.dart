@@ -114,7 +114,7 @@ class BackdropCSSFilter {
     return ClipRRect(
       child: BackdropFilter(
           filter: ImageFilter.blur(
-              sigmaX: value, sigmaY: value, tileMode: TileMode.decal),
+              sigmaX: value, sigmaY: value, tileMode: TileMode.clamp),
           child: child),
     );
   }

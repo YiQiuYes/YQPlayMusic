@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage>
           edgeOffset: screenAdaptor.getLengthByOrientation(50.h, 70.h),
           onRefresh: logic.refreshData,
           child: CustomScrollView(
-            anchor: 0.06,
+            anchor: 0.08,
             slivers: [
               // by Apple Music文本
               SliverToBoxAdapter(

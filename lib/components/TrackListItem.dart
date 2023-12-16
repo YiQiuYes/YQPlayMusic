@@ -120,7 +120,7 @@ class TrackListItem extends StatelessWidget {
             ),
           ),
         ),
-        // 显示时间
+        // 显示专辑名称
         Visibility(
           visible: isShowSongAlbumNameAndTimes,
           child: Positioned(
@@ -147,7 +147,7 @@ class TrackListItem extends StatelessWidget {
         Visibility(
           visible: isShowSongAlbumNameAndTimes,
           child: Positioned(
-            right: 0,
+            right: screenAdaptor.getLengthByOrientation(10.w, 8.w),
             top: screenAdaptor.getLengthByOrientation(
                 timePaddingTop?[0] ?? 0, timePaddingTop?[1] ?? 0),
             child: Text(
@@ -251,7 +251,9 @@ class TrackListItem extends StatelessWidget {
   String getSongTime(Map item) {
     // 歌曲时间
     double dt = item["dt"] / 1000;
-    if(dt == 0) return "";
-    return "${dt ~/ 60}:${(dt % 60).truncate()}";
+    if(dt == 0) return "0:00";
+    // 获取秒
+    int second = (dt % 60).truncate();
+    return "${dt ~/ 60}:${second < 10 ? "0$second" : second}";
   }
 }

@@ -71,7 +71,7 @@ class LyricsLogic extends GetxController {
   // 获取歌曲播放时间大小
   String getSongDuration() {
     if (state.songInfo.isNotEmpty) {
-      double dt = state.songInfo["songs"][0]["dt"] / 1000;
+      double dt = state.musicDuration.value / 1000;
       if (dt == 0) return "0:00";
       // 获取秒
       int second = (dt % 60).truncate();
@@ -178,29 +178,31 @@ class LyricsLogic extends GetxController {
   }
 
   // 开启歌曲进度定时器
-  void startTimerMusicPrecess() {
-    state.timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        double result =
-            (player.duration == 0 ? 0 : player.position / player.duration);
-        // 获取歌曲进度
-        state.musicProcessPosition.value = player.position;
+  void listenMusicPrecess() {
+    player.setCurrentPositionCb(() {
+      double result =
+      (player.duration == 0 ? 0 : player.position / player.duration);
+      // 获取歌曲进度
+      state.musicProcessPosition.value = player.position;
 
-        // 获取进度条进度
-        if (result > 1.0 && !state.isStartDrag) {
-          state.lyricsProgress.value = 1.0;
-          state.lyricsProgressNoBlock.value = 1.0;
-        } else if (!state.isStartDrag) {
-          state.lyricsProgress.value = result;
-          state.lyricsProgressNoBlock.value = result;
-        } else if (result > 1.0) {
-          state.lyricsProgressNoBlock.value = 1.0;
-        } else {
-          state.lyricsProgressNoBlock.value = result;
-        }
-      },
-    );
+      // 获取歌曲总时长
+      if(state.musicDuration.value != player.duration) {
+        state.musicDuration.value = player.duration;
+      }
+
+      // 获取进度条进度
+      if (result > 1.0 && !state.isStartDrag) {
+        state.lyricsProgress.value = 1.0;
+        state.lyricsProgressNoBlock.value = 1.0;
+      } else if (!state.isStartDrag) {
+        state.lyricsProgress.value = result;
+        state.lyricsProgressNoBlock.value = result;
+      } else if (result > 1.0) {
+        state.lyricsProgressNoBlock.value = 1.0;
+      } else {
+        state.lyricsProgressNoBlock.value = result;
+      }
+    });
   }
 
   // 处理歌词是否可以滚动
@@ -216,15 +218,15 @@ class LyricsLogic extends GetxController {
   }
 
   // 处理歌词滚动
-  void handleLyricsScroll(int currentTime) {
+  void handleLyricsScroll() {
     if (state.lyricsTime.isNotEmpty && state.lyrics.isNotEmpty) {
       // developer.log(state.lyricsTime.toString());
       // developer.log(currentTime.toString());
       // 查看循环有无break
       bool flag = true;
       for (int i = 0; i < state.lyricsTime.length - 1; i++) {
-        if (currentTime >= state.lyricsTime[i] &&
-            currentTime < state.lyricsTime[i + 1]) {
+        if (player.position >= state.lyricsTime[i] &&
+            player.position < state.lyricsTime[i + 1]) {
           flag = false;
           if (state.lyricsScrollPosition.value == i) break;
 

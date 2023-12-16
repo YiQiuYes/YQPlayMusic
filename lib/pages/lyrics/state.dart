@@ -15,6 +15,8 @@ class LyricsState {
   late RxDouble lyricsProgressNoBlock;
   // 歌曲进度微秒
   late RxInt musicProcessPosition;
+  // 歌曲总时长
+  late RxInt musicDuration;
 
 
   // 歌词滚动的位置
@@ -32,8 +34,6 @@ class LyricsState {
 
   // 音乐url
   late RxString musicUrl;
-  // 定时器
-  late Timer timer;
   // 进度条是否开始拖动
   late bool isStartDrag = false;
 
@@ -58,5 +58,6 @@ class LyricsState {
     lyricsScrollPosition = 0.obs;
     isUserScrollLyrics = false;
     isPlaying = false.obs;
+    musicDuration = 0.obs;
   }
 }
