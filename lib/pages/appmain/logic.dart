@@ -48,16 +48,31 @@ class AppMainLogic extends GetxController {
     state.tabController.animateTo(index);
   }
 
+  // 控制器初始化
   void tabControllerInit(TickerProvider tickerProvider) {
     state.tabController =
         TabController(length: state.tabViews.length, vsync: tickerProvider);
     state.tabController.addListener(() {
       switch (state.tabController.index) {
+        case 0:
+          {
+            if (state.tabController.indexIsChanging) return;
+            // 首页页面
+            state.currentTabIndex.value = 0;
+          }
+          break;
+        case 1:
+          {
+            if (state.tabController.indexIsChanging) return;
+            // 我的页面
+            state.currentTabIndex.value = 1;
+          }
         case 2:
           {
             if (state.tabController.indexIsChanging) return;
             // 音乐库页面
             state.musicLibraryPageKey.currentState?.logic.getRandomLyric();
+            state.currentTabIndex.value = 2;
           }
           break;
       }
@@ -135,9 +150,29 @@ class AppMainLogic extends GetxController {
       if(event.mapData["musicArtist"] != null) {
         state.musicArtist.value = event.mapData["musicArtist"];
       }
-      if(event.mapData["isPlaying"] != null) {
-        state.isPlaying.value = event.mapData["isPlaying"];
+      if(event.mapData["playAndPause"] != null) {
+        state.isPlaying.value = event.mapData["playAndPause"];
       }
     });
+  }
+
+  // 底部MusicBar播放按钮处理逻辑
+  void handleMusicBarPlayBtn() {
+    if (state.isPlaying.value) {
+      EventBusManager.eventBus.fire(ShareData(playAndPause: false));
+    } else {
+      EventBusManager.eventBus.fire(ShareData(playAndPause: true));
+    }
+    state.isPlaying.value = !state.isPlaying.value;
+  }
+
+  // 上一首按钮逻辑
+  void handleMusicBarPreBtn() {
+    EventBusManager.eventBus.fire(ShareData(previous: true));
+  }
+
+  // 下一首按钮逻辑
+  void handleMusicBarNextBtn() {
+    EventBusManager.eventBus.fire(ShareData(next: true));
   }
 }

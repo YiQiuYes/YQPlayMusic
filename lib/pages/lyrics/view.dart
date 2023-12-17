@@ -205,18 +205,16 @@ class _LyricsPageState extends State<LyricsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Obx(() {
-          return Text(
-            "${state.lyrics[index]}",
-            style: TextStyle(
-              decoration: TextDecoration.none,
-              color: state.lyricsScrollPosition.value == index
-                  ? Colors.black
-                  : Colors.black26,
-              fontSize: screenAdaptor.getLengthByOrientation(40.sp, 22.sp),
-            ),
-          );
-        }),
+        Text(
+          "${state.lyrics[index]}",
+          style: TextStyle(
+            decoration: TextDecoration.none,
+            color: state.lyricsScrollPosition.value == index
+                ? Colors.black
+                : Colors.black26,
+            fontSize: screenAdaptor.getLengthByOrientation(40.sp, 22.sp),
+          ),
+        ),
         // 间距
         SizedBox(
           height: screenAdaptor.getLengthByOrientation(20.w, 20.w),

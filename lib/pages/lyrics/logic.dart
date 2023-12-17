@@ -22,11 +22,8 @@ class LyricsLogic extends GetxController {
     trackManager.getMusicDetail(ids: [state.musicId.value]).then((value) {
       state.songInfo.value =
           value.data is String ? jsonDecode(value.data) : value.data;
-
       // 获取歌词
       getSongLyrics();
-      // 获取音乐url
-      getMusicUrl();
     });
   }
 
@@ -139,54 +136,16 @@ class LyricsLogic extends GetxController {
     }
   }
 
-  // 获取音乐url
-  void getMusicUrl() {
-    if (state.songInfo.isNotEmpty) {
-      trackManager
-          .getMusicUrl(id: state.musicId.value.toString())
-          .then((value) async {
-        var res = value.data is String ? jsonDecode(value.data) : value.data;
-        // developer.log(res.toString());
-
-        // 判断文件缓存是否存在
-        Directory directory = await getTemporaryDirectory();
-        String path =
-            "${directory.path}/lockCachingAudioSource/${state.musicId.value}.${res["data"][0]["type"]}";
-        File file = File(path);
-        bool isExists = await file.exists();
-        if (isExists) {
-          // 如果存在缓存直接播放
-          await player.audioPlayer.setFilePath(path);
-        } else {
-          // 处理url
-          String url = res["data"][0]["url"];
-          // 去除字符串 ?authSecret= 之后的内容 防止音乐识别问题
-          RegExp regex = RegExp(r'\?authSecret=[^&]*');
-          url = url.replaceAll(regex, "");
-          state.musicUrl.value = url;
-
-          LockCachingAudioSource lockCachingAudioSource =
-              LockCachingAudioSource(
-            Uri.parse(state.musicUrl.value),
-            cacheFile: File(
-                "${directory.path}/lockCachingAudioSource/${state.musicId.value}.${res["data"][0]["type"]}"),
-          );
-          await player.audioPlayer.setAudioSource(lockCachingAudioSource);
-        }
-      });
-    }
-  }
-
   // 开启歌曲进度定时器
   void listenMusicPrecess() {
     player.setCurrentPositionCb(() {
       double result =
-      (player.duration == 0 ? 0 : player.position / player.duration);
+          (player.duration == 0 ? 0 : player.position / player.duration);
       // 获取歌曲进度
       state.musicProcessPosition.value = player.position;
 
       // 获取歌曲总时长
-      if(state.musicDuration.value != player.duration) {
+      if (state.musicDuration.value != player.duration) {
         state.musicDuration.value = player.duration;
       }
 
@@ -277,21 +236,21 @@ class LyricsLogic extends GetxController {
   // 播放按钮逻辑
   void handlePlayBtn() {
     if (state.isPlaying.value) {
-      player.audioPlayer.pause();
+      EventBusManager.eventBus.fire(ShareData(playAndPause: false));
     } else {
-      player.audioPlayer.play();
+      EventBusManager.eventBus.fire(ShareData(playAndPause: true));
     }
     state.isPlaying.value = !state.isPlaying.value;
   }
 
   // 上一首按钮逻辑
   void handlePreBtn() {
-    getMusicUrl();
+    EventBusManager.eventBus.fire(ShareData(previous: true));
   }
 
   // 下一首按钮逻辑
   void handleNextBtn() {
-    getMusicUrl();
+    EventBusManager.eventBus.fire(ShareData(next: true));
   }
 
   // 刷新数据
@@ -303,24 +262,20 @@ class LyricsLogic extends GetxController {
   void handleDataListener() {
     state.streamSubscription =
         EventBusManager.eventBus.on<ShareData>().listen((event) {
-      state.musicId.value =
-          int.parse(event.mapData["musicID"] ?? state.musicId.value.toString());
+      if (event.mapData["musicID"] != null) {
+        state.musicId.value = int.parse(event.mapData["musicID"]);
+        // 刷新数据
+        refreshData();
+      }
 
-      // 刷新数据
-      refreshData();
-
-      state.isPlaying.value =
-          event.mapData["isPlaying"] ?? state.isPlaying.value;
-      if (state.isPlaying.value) {
-        // 防止切换下一首时音乐残留
-        if (state.musicProcessPosition.value != 0) {
-          // 创建异步任务
-          Future.delayed(const Duration(seconds: 1), () {
-            player.audioPlayer.play();
-          });
-          return;
+      if (event.mapData["isPlaying"] != null) {
+        if (event.mapData["isPlaying"]) {
+          state.lyricsScrollPosition.value = 0;
         }
-        player.audioPlayer.play();
+      }
+
+      if (event.mapData["playAndPause"] != null) {
+        state.isPlaying.value = event.mapData["playAndPause"];
       }
     });
   }

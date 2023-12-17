@@ -102,6 +102,7 @@ class Assets {
   static const String utilsPlayer = 'lib/common/utils/Player.dart';
   static const String utilsScreenadaptor = 'lib/common/utils/screenadaptor.dart';
   static const String utilsShareData = 'lib/common/utils/ShareData.dart';
+  static const String utilsSongInfoUtils = 'lib/common/utils/SongInfoUtils.dart';
   static const String utilsStaticdata = 'lib/common/utils/staticdata.dart';
 
 }

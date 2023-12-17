@@ -81,7 +81,7 @@ class _AppMainPageState extends State<AppMainPage>
         }),
         controller: state.advancedDrawerController,
         animationCurve: Curves.easeInOut,
-        animationDuration: const Duration(milliseconds: 300),
+        animationDuration: const Duration(milliseconds: 200),
         animateChildDecoration: true,
         // 侧边栏方向
         rtlOpening: false,
@@ -246,7 +246,7 @@ class _AppMainPageState extends State<AppMainPage>
     );
   }
 
-  // 获取音乐播放条
+  // 获取底部音乐播放条
   Widget _getMusicPlayBar() {
     return BackdropCSSFilter.blur(
       value: 8,
@@ -335,7 +335,7 @@ class _AppMainPageState extends State<AppMainPage>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: logic.handleMusicBarPreBtn,
                     icon: SvgPicture.asset(
                       "lib/assets/icons/previous.svg",
                       width: screenAdaptor.getLengthByOrientation(20.w, 13.w),
@@ -347,7 +347,7 @@ class _AppMainPageState extends State<AppMainPage>
                     width: screenAdaptor.getLengthByOrientation(20.w, 15.w),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: logic.handleMusicBarPlayBtn,
                     icon: Obx(() {
                       return SvgPicture.asset(
                         state.isPlaying.value
@@ -364,7 +364,7 @@ class _AppMainPageState extends State<AppMainPage>
                     width: screenAdaptor.getLengthByOrientation(20.w, 15.w),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: logic.handleMusicBarNextBtn,
                     icon: SvgPicture.asset(
                       "lib/assets/icons/next.svg",
                       width: screenAdaptor.getLengthByOrientation(20.w, 13.w),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:yqplaymusic/common/utils/SongInfoUtils.dart';
 import 'package:yqplaymusic/components/TrackListItem.dart';
 
 import '../common/utils/EventBusDistribute.dart';
@@ -25,33 +26,6 @@ class TrackList extends StatelessWidget {
   // 是否显示歌曲的专辑和歌曲时间信息
   final bool isShowSongAlbumNameAndTimes;
 
-  // 获取图片链接
-  String _getImageUrl(Map item) {
-    String imageUrl = item["al"]?["picUrl"] ??
-        item["album"]?["picUrl"] ??
-        "https://p2.music.126.net/UeTuwE7pvjBpypWLudqukA==/3132508627578625.jpg";
-
-    return "$imageUrl?param=224y224";
-  }
-
-  // 获取歌手信息
-  String _getArtists(Map item) {
-    if (item["ar"] != null) {
-      if (item["ar"].isNotEmpty) {
-        String name = item["ar"].map((e) => e["name"]).join(", ");
-        if(name == "null") return "";
-        return name;
-      }
-    } else if (item["artists"] != null) {
-      if (item["artists"].isNotEmpty) {
-        String name = item["artists"].map((e) => e["name"]).join(", ");
-        if(name == "null") return "";
-        return name;
-      }
-    }
-    return "";
-  }
-
   Widget _bulidTrackList() {
     return GridView.builder(
       padding: EdgeInsets.zero,
@@ -69,9 +43,8 @@ class TrackList extends StatelessWidget {
             EventBusManager.eventBus.fire(ShareData(
               musicID: tracks[index]["id"].toString(),
               isPlaying: true,
-              musicImageUrl: _getImageUrl(tracks[index]),
-              musicName: tracks[index]["name"],
-              musicArtist: _getArtists(tracks[index]),
+              playAndPause: true,
+              songIDs: SongInfoUtils().getMapSongIDs(tracks),
             ));
           },
           borderRadius: BorderRadius.circular(
@@ -90,8 +63,7 @@ class TrackList extends StatelessWidget {
   }
 
   Widget _buildSliverCloudDisk() {
-    //developer.log(tracks[0]["simpleSong"].toString());
-    //print(tracks.length);
+    // developer.log(tracks[0].toString());
     return SliverAlignedGrid.count(
       crossAxisCount: columnCount,
       mainAxisSpacing: 5,
@@ -101,11 +73,10 @@ class TrackList extends StatelessWidget {
           onTap: () {
             // 发送事件
             EventBusManager.eventBus.fire(ShareData(
-              musicID: tracks[index]["id"].toString(),
+              musicID: tracks[index]["simpleSong"]["id"].toString(),
               isPlaying: true,
-              musicImageUrl: _getImageUrl(tracks[index]),
-              musicName: tracks[index]["name"],
-              musicArtist: _getArtists(tracks[index]),
+              playAndPause: true,
+              songIDs: SongInfoUtils().getMapSongIDs(tracks),
             ));
           },
           borderRadius: BorderRadius.circular(
@@ -146,9 +117,8 @@ class TrackList extends StatelessWidget {
             EventBusManager.eventBus.fire(ShareData(
               musicID: tracks[index]["id"].toString(),
               isPlaying: true,
-              musicImageUrl: _getImageUrl(tracks[index]),
-              musicName: tracks[index]["name"],
-              musicArtist: _getArtists(tracks[index]),
+              playAndPause: true,
+              songIDs: SongInfoUtils().getMapSongIDs(tracks),
             ));
           },
           borderRadius: BorderRadius.circular(
