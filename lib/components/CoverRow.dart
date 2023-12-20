@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:yqplaymusic/common/utils/screenadaptor.dart';
 import 'package:yqplaymusic/components/Cover.dart';
+import 'package:get/get.dart';
 
 class CoverRow extends StatelessWidget {
   const CoverRow(
@@ -213,13 +212,18 @@ class CoverRow extends StatelessWidget {
         ),
       ];
       widgets.add(
-        ListView.builder(
-          itemBuilder: (BuildContext context, int index) {
-            return columnWidgets[index];
+        InkWell(
+          onTap: () {
+            Get.toNamed("/${type}Page", id: 1, arguments: {"id": item["id"]});
           },
-          itemCount: columnWidgets.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+          child: ListView.builder(
+            itemBuilder: (BuildContext context, int index) {
+              return columnWidgets[index];
+            },
+            itemCount: columnWidgets.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+          ),
         ),
       );
     }

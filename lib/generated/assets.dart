@@ -2,6 +2,9 @@
 class Assets {
   Assets._();
 
+  static const String albumLogic = 'lib/pages/album/logic.dart';
+  static const String albumState = 'lib/pages/album/state.dart';
+  static const String albumView = 'lib/pages/album/view.dart';
   static const String alterwidgetsWDCustomTrackShape = 'lib/common/alterwidgets/WDCustomTrackShape.dart';
   static const String apiAlbum = 'lib/api/album.dart';
   static const String apiArtist = 'lib/api/artist.dart';
@@ -94,8 +97,13 @@ class Assets {
   static const String musicLibraryView = 'lib/pages/music_library/view.dart';
   static const String netMyoptions = 'lib/common/net/myoptions.dart';
   static const String netSsjrequestmanager = 'lib/common/net/ssjrequestmanager.dart';
+  static const String playlistLogic = 'lib/pages/playlist/logic.dart';
+  static const String playlistState = 'lib/pages/playlist/state.dart';
+  static const String playlistView = 'lib/pages/playlist/view.dart';
+  static const String routerAppMainRouteConfig = 'lib/router/AppMainRouteController.dart';
   static const String routerRouteconfig = 'lib/router/routeconfig.dart';
   static const String utilsCrypto = 'lib/common/utils/crypto.dart';
+  static const String utilsDataSaveManager = 'lib/common/utils/DataSaveManager.dart';
   static const String utilsEventBusDistribute = 'lib/common/utils/EventBusDistribute.dart';
   static const String utilsImageutils = 'lib/common/utils/imageutils.dart';
   static const String utilsPlatformutils = 'lib/common/utils/platformutils.dart';

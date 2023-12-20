@@ -7,12 +7,16 @@ import 'package:yqplaymusic/pages/explore/view.dart';
 import 'package:yqplaymusic/pages/home/view.dart';
 import 'package:yqplaymusic/pages/music_library/view.dart';
 
+import '../../router/AppMainRouteController.dart';
+
 class AppMainState {
   late AdvancedDrawerController advancedDrawerController; // 侧边栏页面控制器
   late RxString drawerUserImgUrl; // 侧边栏用户图片
   late TabController tabController; // Tab控制器
   late List<Widget> tabViews; // Tab页面列表
   late RxInt currentTabIndex; // 当前Tab索引
+  // 历史导航栏索引
+  late int historyTabIndex;
   // 渐变颜色列表
   late RxList<Color> gradientColors;
   // 音乐播放进度条
@@ -30,8 +34,6 @@ class AppMainState {
 
   // 数据共享监听器
   late StreamSubscription streamSubscription;
-  // 音乐ID
-  late RxInt musicId;
   // 音乐图片链接
   late RxString musicImgUrl;
   // 歌曲名字
@@ -40,7 +42,10 @@ class AppMainState {
   late RxString musicArtist;
   // 是否在播放
   late RxBool isPlaying;
+  late AppMainRouteController appMainRouteController;
 
+  // 主页面是否是TabBarView
+  late RxInt stackTabBarViewIndex;
 
   AppMainState() {
     advancedDrawerController = AdvancedDrawerController();
@@ -65,10 +70,24 @@ class AppMainState {
     musicProgress = 0.0.obs;
     isLyricsPageShow = false.obs;
     currentTabIndex = 0.obs;
-    musicId = 1456673752.obs;
-    musicImgUrl = "https://p2.music.126.net/VnZiScyynLG7atLIZ2YPkw==/18686200114669622.jpg?param=224y224".obs;
-    musicName = "歌曲名".obs;
-    musicArtist = "歌手".obs;
+    historyTabIndex = currentTabIndex.value;
+    musicImgUrl = "".obs;
+    musicName = "".obs;
+    musicArtist = "".obs;
     isPlaying = false.obs;
+
+    appMainRouteController = AppMainRouteController();
+    stackTabBarViewIndex = 0.obs;
+    // 添加监听
+    stackTabBarViewIndex.listen(
+      (index) {
+        if(currentTabIndex.value != -1) {
+          historyTabIndex = currentTabIndex.value;
+          currentTabIndex.value = -1;
+        } else if(index == 0) {
+          currentTabIndex.value = historyTabIndex;
+        }
+      },
+    );
   }
 }

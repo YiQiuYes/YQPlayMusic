@@ -26,6 +26,26 @@ class TrackList extends StatelessWidget {
   // 是否显示歌曲的专辑和歌曲时间信息
   final bool isShowSongAlbumNameAndTimes;
 
+  String _getMusicID(String type, Map item) {
+    switch (type) {
+      case "playlist":
+        return item["id"].toString();
+      case "sliverCloudDisk":
+        return item["song"]["id"].toString();
+    }
+    return "0";
+  }
+
+  Map _getTrack(String type, Map item) {
+    switch (type) {
+      case "playlist":
+        return item;
+      case "sliverCloudDisk":
+        return item["simpleSong"];
+    }
+    return {};
+  }
+
   Widget _bulidTrackList() {
     return GridView.builder(
       padding: EdgeInsets.zero,
@@ -62,7 +82,7 @@ class TrackList extends StatelessWidget {
     );
   }
 
-  Widget _buildSliverCloudDisk() {
+  Widget _buildSliverSongsList(String type) {
     // developer.log(tracks[0].toString());
     return SliverAlignedGrid.count(
       crossAxisCount: columnCount,
@@ -73,7 +93,7 @@ class TrackList extends StatelessWidget {
           onTap: () {
             // 发送事件
             EventBusManager.eventBus.fire(ShareData(
-              musicID: tracks[index]["simpleSong"]["id"].toString(),
+              musicID: _getMusicID(type, tracks[index]),
               isPlaying: true,
               playAndPause: true,
               songIDs: SongInfoUtils().getMapSongIDs(tracks),
@@ -84,7 +104,7 @@ class TrackList extends StatelessWidget {
           child: SizedBox(
             height: screenAdaptor.getLengthByOrientation(70.h, 120.h),
             child: TrackListItem(
-              track: tracks[index]["simpleSong"],
+              track: _getTrack(type, tracks[index]),
               subTitleAndArtistPaddingLeft: [81.w, 55.w],
               subTitleAndArtistPaddingRight: [400.w, 350.w],
               artistPaddingTop: [30.w, 20.w],
@@ -115,7 +135,7 @@ class TrackList extends StatelessWidget {
           onTap: () {
             // 发送事件
             EventBusManager.eventBus.fire(ShareData(
-              musicID: tracks[index]["id"].toString(),
+              musicID: tracks[index]["song"]["id"].toString(),
               isPlaying: true,
               playAndPause: true,
               songIDs: SongInfoUtils().getMapSongIDs(tracks),
@@ -148,9 +168,11 @@ class TrackList extends StatelessWidget {
       case "tracklist":
         return _bulidTrackList();
       case "sliverCloudDisk":
-        return _buildSliverCloudDisk();
+        return _buildSliverSongsList(type);
       case "sliverTrackList":
         return _buildSliverTrackList();
+      case "playlist":
+        return _buildSliverSongsList(type);
       default:
         return _bulidTrackList();
     }

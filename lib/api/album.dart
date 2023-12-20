@@ -22,6 +22,21 @@ class AlbumManager {
       myOptions: myOptions,
     );
   }
+
+  /// 获取专辑内容
+  Future<Response> getAlbum({required String id}) async {
+    MyOptions myOptions = MyOptions();
+    myOptions.crypto = "weapi";
+    // Map<String, dynamic> queryParameters = {
+    //   "id" : id,
+    // };
+
+    return await ssjRequestManager.post(
+      "https://music.163.com/weapi/v1/album/${id}",
+      //queryParameters: queryParameters,
+      myOptions: myOptions,
+    );
+  }
 }
 
 const albumManager = AlbumManager();

@@ -72,6 +72,8 @@ dependencies:
   just_audio: ^0.9.36
   # 事件总线
   event_bus: ^2.0.0
+  # 数据持久化存储
+  shared_preferences: ^2.2.2
   # 多语言本地化
   flutter_localizations:
     sdk: flutter

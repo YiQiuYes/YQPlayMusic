@@ -13,8 +13,10 @@ class SongInfoUtils {
   String getSongName(Map item) {
     if (item["simpleSong"] != null) {
       item = item["simpleSong"];
-    } else {
+    } else if (item["songs"].isNotEmpty) {
       item = item["songs"][0];
+    } else {
+      return "";
     }
 
     return item["name"];
@@ -24,9 +26,12 @@ class SongInfoUtils {
   String getSuTitle(Map item) {
     if (item["simpleSong"] != null) {
       item = item["simpleSong"];
-    } else {
+    } else if (item["songs"].isNotEmpty) {
       item = item["songs"][0];
+    } else {
+      return "";
     }
+
     String tn = "";
     if (item["tns"] != null &&
         item["tns"].isNotEmpty &&
@@ -57,9 +62,10 @@ class SongInfoUtils {
   String getImageUrl(Map item) {
     if (item["simpleSong"] != null) {
       item = item["simpleSong"];
-    } else {
+    } else if(item["songs"].isNotEmpty) {
       item = item["songs"][0];
     }
+
     String imageUrl = item["al"]?["picUrl"] ??
         item["album"]?["picUrl"] ??
         "https://p2.music.126.net/UeTuwE7pvjBpypWLudqukA==/3132508627578625.jpg";
@@ -71,8 +77,10 @@ class SongInfoUtils {
   String getArtists(Map item) {
     if (item["simpleSong"] != null) {
       item = item["simpleSong"];
-    } else {
+    } else if (item["songs"].isNotEmpty) {
       item = item["songs"][0];
+    } else {
+      return "";
     }
     if (item["ar"] != null) {
       if (item["ar"].isNotEmpty) {
@@ -94,9 +102,12 @@ class SongInfoUtils {
   String getAlbumName(Map item) {
     if (item["simpleSong"] != null) {
       item = item["simpleSong"];
-    } else {
+    } else if (item["songs"].isNotEmpty) {
       item = item["songs"][0];
+    } else {
+      return "";
     }
+
     if (item["album"] != null) {
       return item["album"]["name"] ?? "";
     } else if (item["al"] != null) {
@@ -109,9 +120,12 @@ class SongInfoUtils {
   String getSongTime(Map item) {
     if (item["simpleSong"] != null) {
       item = item["simpleSong"];
-    } else {
+    } else if (item["songs"].isNotEmpty) {
       item = item["songs"][0];
+    } else {
+      return "0:00";
     }
+
     // 歌曲时间
     double dt = item["dt"] / 1000;
     if (dt == 0) return "0:00";
@@ -121,17 +135,23 @@ class SongInfoUtils {
   }
 
   // 获取所有id集合
- List<String> getMapSongIDs(List items) {
+  List<String> getMapSongIDs(List items) {
     // developer.log(items.toString());
     List<String> result = [];
     Map item = {};
-    for(int i = 0; i < items.length; i++) {
+    for (int i = 0; i < items.length; i++) {
       item = items[i];
       if (item["simpleSong"] != null) {
         item = item["simpleSong"];
       }
+
+      if(item["song"] != null) {
+        item = item["song"];
+      }
+
       result.add(item["id"].toString());
     }
+
     return result;
- }
+  }
 }

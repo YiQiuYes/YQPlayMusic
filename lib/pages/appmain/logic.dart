@@ -5,14 +5,40 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:tinycolor2/tinycolor2.dart';
+import 'package:yqplaymusic/common/utils/DataSaveManager.dart';
 import '../../api/auth.dart';
 import '../../common/utils/EventBusDistribute.dart';
 import '../../common/utils/Player.dart';
 import '../../common/utils/ShareData.dart';
+import '../../router/AppMainRouteController.dart';
 import 'state.dart';
 
 class AppMainLogic extends GetxController {
   final AppMainState state = AppMainState();
+
+  // 底部播放栏图片歌曲信息初始化获取
+  void initMusicBarInfo() {
+    // 获取音乐图片链接
+    DataSaveManager.getLocalStorage("musicImageUrl").then((value) {
+      if (value != null) {
+        state.musicImgUrl.value = value;
+      }
+    });
+
+    // 获取歌曲名字
+    DataSaveManager.getLocalStorage("musicName").then((value) {
+      if (value != null) {
+        state.musicName.value = value;
+      }
+    });
+
+    // 获取歌手信息
+    DataSaveManager.getLocalStorage("musicArtist").then((value) {
+      if (value != null) {
+        state.musicArtist.value = value;
+      }
+    });
+  }
 
   // 左上角按钮点击唤起侧边栏事件
   void handleMenuButtonPress() {
@@ -21,12 +47,6 @@ class AppMainLogic extends GetxController {
 
   // 返回键拦截
   Future<bool> onBackPressed() async {
-    if (state.advancedDrawerController.value.visible) {
-      // 隐藏侧边栏
-      state.advancedDrawerController.hideDrawer();
-      return false;
-    }
-
     if (state.isLyricsPageShow.value) {
       // 开始执行动画
       state.lyricsPageAnimation = Tween<double>(
@@ -39,11 +59,27 @@ class AppMainLogic extends GetxController {
       return false;
     }
 
+    if(state.stackTabBarViewIndex.value != 0) {
+      state.stackTabBarViewIndex.value--;
+      Get.back(id: 1);
+      return false;
+    }
+
+    if (state.advancedDrawerController.value.visible) {
+      // 隐藏侧边栏
+      state.advancedDrawerController.hideDrawer();
+      return false;
+    }
+
     return true;
   }
 
   // tab切换逻辑
   void handleTabChange({required int index}) {
+    while(state.stackTabBarViewIndex.value != 0) {
+      state.stackTabBarViewIndex.value--;
+      Get.back(id: 1);
+    }
     state.currentTabIndex.value = index;
     state.tabController.animateTo(index);
   }
@@ -123,7 +159,7 @@ class AppMainLogic extends GetxController {
   void listenMusicPrecess() {
     player.setCurrentPositionCb(() {
       double result =
-      (player.duration == 0 ? 0 : player.position / player.duration);
+          (player.duration == 0 ? 0 : player.position / player.duration);
 
       // 获取进度条进度
       if (result > 1.0) {
@@ -138,19 +174,17 @@ class AppMainLogic extends GetxController {
   void handleDataListener() {
     state.streamSubscription =
         EventBusManager.eventBus.on<ShareData>().listen((event) {
-      state.musicId.value =
-          int.parse(event.mapData["musicID"] ?? state.musicId.value.toString());
       // 刷新数据
-      if(event.mapData["musicImageUrl"] != null) {
+      if (event.mapData["musicImageUrl"] != null) {
         state.musicImgUrl.value = event.mapData["musicImageUrl"];
       }
-      if(event.mapData["musicName"] != null) {
+      if (event.mapData["musicName"] != null) {
         state.musicName.value = event.mapData["musicName"];
       }
-      if(event.mapData["musicArtist"] != null) {
+      if (event.mapData["musicArtist"] != null) {
         state.musicArtist.value = event.mapData["musicArtist"];
       }
-      if(event.mapData["playAndPause"] != null) {
+      if (event.mapData["playAndPause"] != null) {
         state.isPlaying.value = event.mapData["playAndPause"];
       }
     });

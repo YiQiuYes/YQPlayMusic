@@ -5,15 +5,18 @@ import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:yqplaymusic/common/utils/DataSaveManager.dart';
 
 import 'package:yqplaymusic/common/utils/backdropcssfilter/css_filter.dart';
 import 'package:yqplaymusic/common/utils/screenadaptor.dart';
 import 'package:yqplaymusic/pages/lyrics/view.dart';
+import 'package:yqplaymusic/router/AppMainRouteController.dart';
 
 import '../../common/alterwidgets/WDCustomTrackShape.dart';
 import '../../common/utils/backdropcssfilter/filter.dart';
 import '../../generated/l10n.dart';
 import '../../router/routeconfig.dart';
+import '../playlist/view.dart';
 import 'logic.dart';
 
 class AppMainPage extends StatefulWidget {
@@ -49,6 +52,8 @@ class _AppMainPageState extends State<AppMainPage>
     logic.handleDataListener();
     // 歌曲进度
     logic.listenMusicPrecess();
+    // 播放栏信息初始化
+    logic.initMusicBarInfo();
   }
 
   @override
@@ -189,12 +194,19 @@ class _AppMainPageState extends State<AppMainPage>
             constraints: const BoxConstraints.expand(),
             child: Stack(
               children: [
-                SizedBox(
-                  width: ScreenUtil().screenWidth,
-                  height: ScreenUtil().screenHeight,
-                  child: TabBarView(
-                    controller: state.tabController,
-                    children: state.tabViews,
+                // 嵌套路由
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  right: 0,
+                  child: SizedBox(
+                    width: ScreenUtil().screenWidth,
+                    height: ScreenUtil().screenHeight,
+                    child: Navigator(
+                      key: Get.nestedKey(1),
+                      initialRoute: AppMainRouteController.main,
+                      onGenerateRoute: AppMainRouteController().onGenerateRoute,
+                    ),
                   ),
                 ),
                 // 顶部导航栏
@@ -211,14 +223,28 @@ class _AppMainPageState extends State<AppMainPage>
                 // 底部播放栏
                 Positioned(
                   bottom: screenAdaptor.getLengthByOrientation(0.h, 0.h),
-                  child: _getMusicPlayBar(),
+                  child: Obx(() {
+                    return Visibility(
+                        maintainState: true,
+                        visible: state.musicImgUrl.isNotEmpty ||
+                            state.musicName.isNotEmpty ||
+                            state.musicArtist.isNotEmpty,
+                        child: _getMusicPlayBar());
+                  }),
                 ),
                 // 获取进度条
                 Positioned(
                   bottom: screenAdaptor.getLengthByOrientation(77.h, 126.h),
                   left: 0,
                   right: 0,
-                  child: _getMusicPlayIndicator(),
+                  child: Obx(() {
+                    return Visibility(
+                        maintainState: true,
+                        visible: state.musicImgUrl.isNotEmpty ||
+                            state.musicName.isNotEmpty ||
+                            state.musicArtist.isNotEmpty,
+                        child: _getMusicPlayIndicator());
+                  }),
                 ),
                 // 歌词页
                 Positioned(
@@ -264,12 +290,15 @@ class _AppMainPageState extends State<AppMainPage>
           children: [
             // 歌曲图片
             Obx(() {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    screenAdaptor.getLengthByOrientation(5.w, 4.w)),
-                child: Image.network(
-                  state.musicImgUrl.value,
-                  fit: BoxFit.contain,
+              return Visibility(
+                visible: state.musicImgUrl.value.isNotEmpty,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                      screenAdaptor.getLengthByOrientation(5.w, 4.w)),
+                  child: Image.network(
+                    state.musicImgUrl.value,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               );
             }),
@@ -277,40 +306,48 @@ class _AppMainPageState extends State<AppMainPage>
             Positioned(
               left: screenAdaptor.getLengthByOrientation(58.h, 95.h),
               top: screenAdaptor.getLengthByOrientation(1.h, 5.h),
-              right: 0,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // 歌词信息
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Obx(() {
-                        return Text(
-                          state.musicName.value,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: screenAdaptor.getLengthByOrientation(
-                                16.sp, 11.sp),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }),
-                      Obx(() {
-                        return Text(
-                          state.musicArtist.value,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: screenAdaptor.getLengthByOrientation(
-                                12.sp, 8.sp),
-                            color: Colors.black38,
-                          ),
-                        );
-                      }),
-                    ],
+                  SizedBox(
+                    width: screenAdaptor.getLengthByOrientation(110.w, 150.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Obx(() {
+                          return Visibility(
+                            visible: state.musicName.value.isNotEmpty,
+                            child: Text(
+                              state.musicName.value,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: screenAdaptor.getLengthByOrientation(
+                                    16.sp, 11.sp),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }),
+                        Obx(() {
+                          return Visibility(
+                            visible: state.musicArtist.value.isNotEmpty,
+                            child: Text(
+                              state.musicArtist.value,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: screenAdaptor.getLengthByOrientation(
+                                    12.sp, 8.sp),
+                                color: Colors.black38,
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
                   ),
                   // 间距
                   SizedBox(
@@ -463,12 +500,21 @@ class _AppMainPageState extends State<AppMainPage>
           // 左侧抽屉
           Align(
             alignment: Alignment.centerLeft,
-            child: IconButton(
-              onPressed: () {
-                state.advancedDrawerController.showDrawer();
-              },
-              icon: const Icon(Icons.menu),
-            ),
+            child: Obx(() {
+              return IconButton(
+                onPressed: () {
+                  if (state.stackTabBarViewIndex.value == 0) {
+                    state.advancedDrawerController.showDrawer();
+                  } else {
+                    state.stackTabBarViewIndex.value--;
+                    Get.back(id: 1);
+                  }
+                },
+                icon: state.stackTabBarViewIndex.value == 0
+                    ? const Icon(Icons.menu)
+                    : const Icon(Icons.arrow_back_ios),
+              );
+            }),
           ),
           // 中间导航栏
           Center(

@@ -25,7 +25,8 @@ class _LyricsPageState extends State<LyricsPage> {
 
   @override
   void initState() {
-    logic.getSongInfo();
+    // 初始化页面
+    logic.initPage();
     logic.listenMusicPrecess();
     // 设置当前播放位置回调
     player.setCurrentPositionCb(logic.handleLyricsScroll);
@@ -37,6 +38,7 @@ class _LyricsPageState extends State<LyricsPage> {
   @override
   void dispose() {
     state.streamSubscription.cancel();
+    player.removeCurrentPositionCb(logic.handleLyricsScroll);
     super.dispose();
   }
 
@@ -48,10 +50,7 @@ class _LyricsPageState extends State<LyricsPage> {
         ..._getBackgroundWidget(),
         // 播放空间和歌词滚动模块
         Center(
-          child: NotificationListener(
-            onNotification: logic.handleLyricsIsScroll,
-            child: _getPlayControlAndLyricsScrollWidget(),
-          ),
+          child: _getPlayControlAndLyricsScrollWidget(),
         ),
       ],
     );
@@ -194,6 +193,7 @@ class _LyricsPageState extends State<LyricsPage> {
         // 歌词
         Visibility(
           visible: !screenAdaptor.getOrientation(),
+          maintainState: true,
           child: _getLyricWidget(),
         ),
       ],
@@ -205,16 +205,19 @@ class _LyricsPageState extends State<LyricsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "${state.lyrics[index]}",
-          style: TextStyle(
-            decoration: TextDecoration.none,
-            color: state.lyricsScrollPosition.value == index
-                ? Colors.black
-                : Colors.black26,
-            fontSize: screenAdaptor.getLengthByOrientation(40.sp, 22.sp),
-          ),
-        ),
+        Obx(() {
+          return Text(
+            // 修复报错的bug，我也不知道为啥呀，怎么就数组越界了
+            "${state.lyrics.length > index ? state.lyrics[index] : ''}",
+            style: TextStyle(
+              decoration: TextDecoration.none,
+              color: state.lyricsScrollPosition.value == index
+                  ? Colors.black
+                  : Colors.black26,
+              fontSize: screenAdaptor.getLengthByOrientation(40.sp, 22.sp),
+            ),
+          );
+        }),
         // 间距
         SizedBox(
           height: screenAdaptor.getLengthByOrientation(20.w, 20.w),
@@ -228,16 +231,20 @@ class _LyricsPageState extends State<LyricsPage> {
     return SizedBox(
       width: screenAdaptor.getLengthByOrientation(480.w, 270.w),
       child: Obx(() {
-        return ScrollablePositionedList.builder(
-          shrinkWrap: true,
-          itemScrollController: state.itemScrollController,
-          scrollOffsetController: state.scrollOffsetController,
-          itemCount: state.lyrics.length,
-          padding: EdgeInsets.only(
-            top: screenAdaptor.getLengthByOrientation(580.w, 200.w),
-            bottom: screenAdaptor.getLengthByOrientation(650.w, 300.w),
+        return Listener(
+          onPointerDown: logic.handleLyricsStartDrag,
+          onPointerUp: logic.handleLyricsEndDrag,
+          child: ScrollablePositionedList.builder(
+            shrinkWrap: true,
+            itemScrollController: state.itemScrollController,
+            scrollOffsetController: state.scrollOffsetController,
+            itemCount: state.lyrics.length,
+            padding: EdgeInsets.only(
+              top: screenAdaptor.getLengthByOrientation(580.w, 200.w),
+              bottom: screenAdaptor.getLengthByOrientation(650.w, 300.w),
+            ),
+            itemBuilder: _getLyricLineBuilder,
           ),
-          itemBuilder: _getLyricLineBuilder,
         );
       }),
     );
@@ -321,7 +328,7 @@ class _LyricsPageState extends State<LyricsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
-            width: screenAdaptor.getLengthByOrientation(43.w, 22.w),
+            width: screenAdaptor.getLengthByOrientation(50.w, 25.w),
             child: Obx(() {
               return Text(
                 logic.getSongProgressText(),
@@ -374,7 +381,7 @@ class _LyricsPageState extends State<LyricsPage> {
           ),
           // 歌曲时长
           SizedBox(
-            width: screenAdaptor.getLengthByOrientation(43.w, 22.w),
+            width: screenAdaptor.getLengthByOrientation(50.w, 25.w),
             child: Obx(() {
               return Text(
                 logic.getSongDuration(),

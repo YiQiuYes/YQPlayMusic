@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:yqplaymusic/api/track.dart';
 import 'package:yqplaymusic/common/utils/Player.dart';
 
+import '../../common/utils/DataSaveManager.dart';
 import '../../common/utils/EventBusDistribute.dart';
 import '../../common/utils/ShareData.dart';
 import '../../common/utils/screenadaptor.dart';
@@ -16,6 +17,17 @@ import 'dart:developer' as developer;
 
 class LyricsLogic extends GetxController {
   final LyricsState state = LyricsState();
+
+  // 第一次初始化读取musicID和获取网络数据
+  void initPage() {
+    DataSaveManager.getLocalStorage("musicID").then((value) async {
+      if (value != null) {
+        state.musicId.value = int.parse(value);
+      }
+      // 获取歌曲信息
+      getSongInfo();
+    });
+  }
 
   // 获取歌曲信息
   void getSongInfo() {
@@ -29,9 +41,13 @@ class LyricsLogic extends GetxController {
 
   // 获取歌曲图片
   String getSongImageUrl({required String type}) {
-    if (type == "background" && state.songInfo.isNotEmpty) {
+    if (type == "background" &&
+        state.songInfo.isNotEmpty &&
+        state.songInfo["songs"].isNotEmpty) {
       return state.songInfo["songs"][0]["al"]["picUrl"] + "?param=512y512";
-    } else if (type == "cover" && state.songInfo.isNotEmpty) {
+    } else if (type == "cover" &&
+        state.songInfo.isNotEmpty &&
+        state.songInfo["songs"].isNotEmpty) {
       return state.songInfo["songs"][0]["al"]["picUrl"] + "?param=1024y1024";
     } else {
       return "https://p2.music.126.net/VnZiScyynLG7atLIZ2YPkw==/18686200114669622.jpg?param=1024y1024";
@@ -40,7 +56,7 @@ class LyricsLogic extends GetxController {
 
   // 获取歌曲名字
   String getSongName() {
-    if (state.songInfo.isNotEmpty) {
+    if (state.songInfo.isNotEmpty && state.songInfo["songs"].isNotEmpty) {
       return state.songInfo["songs"][0]["name"];
     } else {
       return "";
@@ -49,8 +65,9 @@ class LyricsLogic extends GetxController {
 
   // 获取歌手名字
   String getArtistName() {
-    if (state.songInfo.isNotEmpty) {
-      return state.songInfo["songs"][0]["ar"][0]["name"];
+    // developer.log(state.songInfo.toString(), stackTrace: StackTrace.current);
+    if (state.songInfo.isNotEmpty && state.songInfo["songs"].isNotEmpty) {
+      return state.songInfo["songs"][0]["ar"][0]["name"] ?? "";
     } else {
       return "";
     }
@@ -58,8 +75,8 @@ class LyricsLogic extends GetxController {
 
   // 获取专辑名称
   String getAlbumName() {
-    if (state.songInfo.isNotEmpty) {
-      return state.songInfo["songs"][0]["al"]["name"];
+    if (state.songInfo.isNotEmpty && state.songInfo["songs"].isNotEmpty) {
+      return state.songInfo["songs"][0]["al"]["name"] ?? "";
     } else {
       return "";
     }
@@ -92,19 +109,18 @@ class LyricsLogic extends GetxController {
 
   // 获取歌词
   void getSongLyrics() {
-    if (state.songInfo.isNotEmpty) {
+    if (state.songInfo.isNotEmpty && state.songInfo["songs"].isNotEmpty) {
       trackManager.getLyric(id: state.musicId.value.toString()).then((value) {
         var res = value.data is String ? jsonDecode(value.data) : value.data;
-        List<String> lyrics = res["lrc"]["lyric"].split("\n");
-        // developer.log(lyrics.toString());
+        List<String> lyrics = res["lrc"]?["lyric"].split("\n") ?? [];
         List lyricResult = lyrics.map((e) {
           String lyricLine = e.split("]").last;
-          if (lyricLine.contains("作词") ||
-              lyricLine.contains("作曲") ||
-              lyricLine.contains("编曲")) {
-            // 去除字符前的空格
-            lyricLine = lyricLine.replaceAll(RegExp(r'^\s+'), "");
-          }
+          // if (lyricLine.contains("作词") ||
+          //     lyricLine.contains("作曲") ||
+          //     lyricLine.contains("编曲")) {
+          // 去除字符前的空格
+          lyricLine = lyricLine.replaceAll(RegExp(r'^\s+'), "");
+          //}
           return lyricLine;
         }).toList();
 
@@ -123,15 +139,16 @@ class LyricsLogic extends GetxController {
           return dt;
         }).toList();
 
-        if (lyricResult.last == "") {
+        if (lyricResult.isNotEmpty && lyricResult.last == "") {
           lyricResult.removeLast();
           timeResult.removeLast();
         }
 
-        state.lyrics.value = lyricResult;
         state.lyricsTime.value = timeResult;
+        state.lyrics.value = lyricResult;
         // developer.log(lyricResult.length.toString());
         // developer.log(timeResult.length.toString());
+        //state.lyricsScrollPosition.value = 0;
       });
     }
   }
@@ -164,39 +181,64 @@ class LyricsLogic extends GetxController {
     });
   }
 
-  // 处理歌词是否可以滚动
-  bool handleLyricsIsScroll(ScrollNotification notification) {
-    if (notification is ScrollStartNotification) {
-      // 开始滚动
+  // 歌词页面滚动
+  void lyricsWidgetScroll() {
+    state.itemScrollController.scrollTo(
+      index: state.lyricsScrollPosition.value,
+      duration: const Duration(milliseconds: 300),
+      alignment: screenAdaptor.getLengthByOrientation(0.47, 0.35),
+    );
+  }
+
+  // 歌词刚开始触摸滑动逻辑
+  void handleLyricsStartDrag(PointerDownEvent pointerDownEvent) {
+    //if (player.audioPlayer.playing) {
       state.isUserScrollLyrics = true;
-    } else if (notification is ScrollEndNotification) {
-      // 结束滚动
+      // 取消定时器
+      state.lyricsTimer?.cancel();
+    //}
+  }
+
+  // 歌词结束滑动逻辑
+  void handleLyricsEndDrag(PointerUpEvent pointerUpEvent) {
+    // 结束滚动 5s后歌词归位
+    state.lyricsTimer = Timer(const Duration(seconds: 4), () {
       state.isUserScrollLyrics = false;
-    }
-    return true;
+      if(player.audioPlayer.playing) {
+        // 歌词页面滚动
+        lyricsWidgetScroll();
+      }
+    });
   }
 
   // 处理歌词滚动
   void handleLyricsScroll() {
     if (state.lyricsTime.isNotEmpty && state.lyrics.isNotEmpty) {
-      // developer.log(state.lyricsTime.toString());
-      // developer.log(currentTime.toString());
+      if(player.position < state.lyricsTime.first && player.position < state.lyricsTime.last) {
+        if (!state.isUserScrollLyrics && state.lyricsScrollPosition.value != 0) {
+          state.lyricsScrollPosition.value = 0;
+          // 歌词页面滚动
+          lyricsWidgetScroll();
+        }
+        return;
+      }
+
       // 查看循环有无break
       bool flag = true;
       for (int i = 0; i < state.lyricsTime.length - 1; i++) {
         if (player.position >= state.lyricsTime[i] &&
             player.position < state.lyricsTime[i + 1]) {
           flag = false;
-          if (state.lyricsScrollPosition.value == i) break;
+          // 如果是同一位置
+          if (state.lyricsScrollPosition.value == i) {
+            break;
+          }
 
           state.lyricsScrollPosition.value = i;
           // 界面滚动
           if (!state.isUserScrollLyrics) {
-            state.itemScrollController.scrollTo(
-              index: state.lyricsScrollPosition.value,
-              duration: const Duration(milliseconds: 200),
-              alignment: screenAdaptor.getLengthByOrientation(0.47, 0.35),
-            );
+            // 歌词页面滚动
+            lyricsWidgetScroll();
           }
           break;
         }
@@ -204,17 +246,15 @@ class LyricsLogic extends GetxController {
 
       // 如果是最后一个
       if (flag) {
-        if (state.lyricsScrollPosition.value == state.lyricsTime.length - 1)
+        if (state.lyricsScrollPosition.value == state.lyricsTime.length - 1) {
           return;
+        }
 
         state.lyricsScrollPosition.value = state.lyricsTime.length - 1;
         // 界面滚动
         if (!state.isUserScrollLyrics) {
-          state.itemScrollController.scrollTo(
-            index: state.lyricsScrollPosition.value,
-            duration: const Duration(milliseconds: 200),
-            alignment: screenAdaptor.getLengthByOrientation(0.47, 0.35),
-          );
+          // 歌词页面滚动
+          lyricsWidgetScroll();
         }
       }
     }
@@ -268,11 +308,11 @@ class LyricsLogic extends GetxController {
         refreshData();
       }
 
-      if (event.mapData["isPlaying"] != null) {
-        if (event.mapData["isPlaying"]) {
-          state.lyricsScrollPosition.value = 0;
-        }
-      }
+      // if (event.mapData["isPlaying"] != null) {
+      //   if (event.mapData["isPlaying"]) {
+      //     state.lyricsScrollPosition.value = 0;
+      //   }
+      // }
 
       if (event.mapData["playAndPause"] != null) {
         state.isPlaying.value = event.mapData["playAndPause"];

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:yqplaymusic/common/utils/DataSaveManager.dart';
+import 'package:yqplaymusic/common/utils/Player.dart';
 
 class LyricsState {
   // 音乐id
@@ -30,22 +32,20 @@ class LyricsState {
   late RxList lyrics;
   // 歌词对应时间
   late RxList lyricsTime;
-
+  // 5秒歌词归位定时器
+  Timer? lyricsTimer;
 
   // 音乐url
   late RxString musicUrl;
   // 进度条是否开始拖动
   late bool isStartDrag = false;
-
   // 是否处于播放状态
   late RxBool isPlaying;
-
   // 数据共享监听器
   late StreamSubscription streamSubscription;
 
   LyricsState() {
-    // musicId = 29207681.obs;
-    musicId = 1456673752.obs;
+    musicId = int.parse(player.musicId).obs;
     songInfo = {}.obs;
     lyricsProgress = 0.0.obs;
     lyricsProgressNoBlock = 0.0.obs;
